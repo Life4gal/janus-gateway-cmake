@@ -20,6 +20,8 @@ set(
 		${JANUS_MAJOR_VERSION}.${JANUS_MINOR_VERSION}.${JANUS_PATCH_VERSION}
 )
 
+math(EXPR JANUS_VERSION_NUMBER "${JANUS_MAJOR_VERSION} * 1000 + ${JANUS_MINOR_VERSION} * 100 + ${JANUS_PATCH_VERSION} * 10" DECIMAL)
+
 # Determine if our project is built as a subproject (using add_subdirectory)
 # or if it is the master project.
 set(JANUS_MASTER_PROJECT OFF)
@@ -265,6 +267,61 @@ set(
 		${PROJECT_SOURCE_DIR}/src
 )
 
+# generate version.c
+find_program(GIT_EXE NAMES git REQUIRED)
+find_program(DATE_EXE NAMES date REQUIRED)
+find_program(PKGCONFIG_EXE NAMES pkg-config REQUIRED)
+
+execute_process(
+		COMMAND ${GIT_EXE} rev-parse HEAD
+		RESULT_VARIABLE git_result
+		OUTPUT_VARIABLE git_sha
+
+		# COMMAND_ECHO STDERR
+		# ECHO_OUTPUT_VARIABLE
+		# ECHO_ERROR_VARIABLE
+		# COMMAND_ERROR_IS_FATAL ANY
+)
+#message("result: ${git_result}\n sha: ${git_sha}")
+
+execute_process(
+		COMMAND ${DATE_EXE}
+		RESULT_VARIABLE date_result
+		OUTPUT_VARIABLE date_time
+
+		# COMMAND_ECHO STDERR
+		# ECHO_OUTPUT_VARIABLE
+		# ECHO_ERROR_VARIABLE
+		# COMMAND_ERROR_IS_FATAL ANY
+)
+#message("result: ${date_result}\n time: ${date_time}")
+
+execute_process(
+		COMMAND ${PKGCONFIG_EXE} --modversion nice
+		RESULT_VARIABLE pkgconfig_result
+		OUTPUT_VARIABLE pkgconfig_nice_version
+
+		# COMMAND_ECHO STDERR
+		# ECHO_OUTPUT_VARIABLE
+		# ECHO_ERROR_VARIABLE
+		# COMMAND_ERROR_IS_FATAL ANY
+)
+#message("result: ${pkgconfig_result}\n nice version: ${pkgconfig_nice_version}")
+
+file(
+		WRITE
+		${JANUS_SOURCE_FILES_PATH}/version.c
+
+		"#include \"version.h\"\n"
+		"const char *janus_build_git_sha = \"${git_sha}\";\n"
+		"const char *janus_build_git_time = \"${date_time}\";\n"
+		"int janus_version = ${JANUS_VERSION_NUMBER};\n"
+		"const char *janus_version_string = \"${JANUS_VERSION}\";\n"
+		"const char *libnice_version_string = \"${pkgconfig_nice_version}\";\n"
+)
+
+include(${PROJECT_SOURCE_DIR}/cmake_utils/download_project.cmake)
+
 set(
 		JANUS_HEADER_FILES
 
@@ -306,35 +363,33 @@ set(
 set(
 		JANUS_SOURCE_FILES
 
-		${JANUS_HEADER_FILES_PATH}/apierror.c
-		${JANUS_HEADER_FILES_PATH}/auth.c
-		${JANUS_HEADER_FILES_PATH}/config.c
-		${JANUS_HEADER_FILES_PATH}/dtls.c
-		${JANUS_HEADER_FILES_PATH}/dtls-bio.c
-		${JANUS_HEADER_FILES_PATH}/events.c
-		${JANUS_HEADER_FILES_PATH}/ice.c
-		${JANUS_HEADER_FILES_PATH}/janus.c
-		${JANUS_HEADER_FILES_PATH}/log.c
-		${JANUS_HEADER_FILES_PATH}/mutex.c
-		${JANUS_HEADER_FILES_PATH}/options.c
-		${JANUS_HEADER_FILES_PATH}/record.c
-		${JANUS_HEADER_FILES_PATH}/refcount.c
-		${JANUS_HEADER_FILES_PATH}/rtcp.c
-		${JANUS_HEADER_FILES_PATH}/rtp.c
-		${JANUS_HEADER_FILES_PATH}/sctp.c
-		${JANUS_HEADER_FILES_PATH}/sdp.c
-		${JANUS_HEADER_FILES_PATH}/sdp-utils.c
-		${JANUS_HEADER_FILES_PATH}/ip-utils.c
-		${JANUS_HEADER_FILES_PATH}/turnrest.c
-		${JANUS_HEADER_FILES_PATH}/utils.c
-		${JANUS_HEADER_FILES_PATH}/version.c
-		${JANUS_HEADER_FILES_PATH}/text2pcap.c
+		${JANUS_SOURCE_FILES_PATH}/apierror.c
+		${JANUS_SOURCE_FILES_PATH}/auth.c
+		${JANUS_SOURCE_FILES_PATH}/config.c
+		${JANUS_SOURCE_FILES_PATH}/dtls.c
+		${JANUS_SOURCE_FILES_PATH}/dtls-bio.c
+		${JANUS_SOURCE_FILES_PATH}/events.c
+		${JANUS_SOURCE_FILES_PATH}/ice.c
+		${JANUS_SOURCE_FILES_PATH}/janus.c
+		${JANUS_SOURCE_FILES_PATH}/log.c
+		${JANUS_SOURCE_FILES_PATH}/options.c
+		${JANUS_SOURCE_FILES_PATH}/record.c
+		${JANUS_SOURCE_FILES_PATH}/rtcp.c
+		${JANUS_SOURCE_FILES_PATH}/rtp.c
+		${JANUS_SOURCE_FILES_PATH}/sctp.c
+		${JANUS_SOURCE_FILES_PATH}/sdp.c
+		${JANUS_SOURCE_FILES_PATH}/sdp-utils.c
+		${JANUS_SOURCE_FILES_PATH}/ip-utils.c
+		${JANUS_SOURCE_FILES_PATH}/turnrest.c
+		${JANUS_SOURCE_FILES_PATH}/utils.c
+		${JANUS_SOURCE_FILES_PATH}/version.c
+		${JANUS_SOURCE_FILES_PATH}/text2pcap.c
 
-		${JANUS_HEADER_FILES_PATH}/plugins/plugin.c
+		${JANUS_SOURCE_FILES_PATH}/plugins/plugin.c
 
-		${JANUS_HEADER_FILES_PATH}/transports/transport.c
+		${JANUS_SOURCE_FILES_PATH}/transports/transport.c
 
-		${JANUS_HEADER_FILES_PATH}/turnrest.c
+		${JANUS_SOURCE_FILES_PATH}/turnrest.c
 )
 
 # EXECUTABLE
