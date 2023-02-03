@@ -20,7 +20,7 @@ set(
 		${JANUS_MAJOR_VERSION}.${JANUS_MINOR_VERSION}.${JANUS_PATCH_VERSION}
 )
 
-math(EXPR JANUS_VERSION_NUMBER "${JANUS_MAJOR_VERSION} * 1000 + ${JANUS_MINOR_VERSION} * 100 + ${JANUS_PATCH_VERSION} * 10" DECIMAL)
+math(EXPR JANUS_VERSION_NUMBER "${JANUS_MAJOR_VERSION} * 1000 + ${JANUS_MINOR_VERSION} * 100 + ${JANUS_PATCH_VERSION} * 10" OUTPUT_FORMAT DECIMAL)
 
 # Determine if our project is built as a subproject (using add_subdirectory)
 # or if it is the master project.
@@ -406,6 +406,7 @@ add_library(
 target_compile_options(
 		${PROJECT_NAME}
 		PRIVATE
+
 		${JANUS_COMPILE_FLAGS}
 )
 
@@ -421,22 +422,41 @@ target_compile_definitions(
 target_include_directories(
 		${PROJECT_NAME}
 		PUBLIC
+
 		$<BUILD_INTERFACE:${JANUS_HEADER_FILES_PATH}>
 		$<INSTALL_INTERFACE:${JANUS_INSTALL_HEADERS}/${PROJECT_NAME}-${PROJECT_VERSION}>
+)
+
+target_link_options(
+		${PROJECT_NAME}
+		PRIVATE
+
+		${JANUS_LD_FLAGS}
 )
 
 # LINK 3rd-PARTY LIBRARIES
 target_link_directories(
 		${PROJECT_NAME}
 		PRIVATE
+
 		${JANUS_LINK_DIRECTORIES}
 )
 
 target_link_libraries(
 		${PROJECT_NAME}
 		PRIVATE
+
 		${JANUS_LINK_LIBRARIES}
 )
+
+target_include_directories(
+		${PROJECT_NAME}
+		PRIVATE
+
+		${JANUS_INCLUDE_DIRECTORIES}
+)
+
+# janus_print_all_dependencies_info()
 
 message(STATUS "=======================================")
 # unique

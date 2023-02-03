@@ -11,6 +11,78 @@ function(janus_verbose_message message)
 	message(VERBOSE ${message})
 endfunction(janus_verbose_message message)
 
+function(janus_print_all_dependencies_info)
+	message(STATUS "=======================================")
+	# unique
+	list(REMOVE_DUPLICATES JANUS_LINK_LIBRARIES)
+
+	message(STATUS "LIBRARIES:")
+	foreach (library IN LISTS JANUS_LINK_LIBRARIES)
+		message(STATUS "-->\t\t ${library}")
+	endforeach (library IN LISTS JANUS_LINK_LIBRARIES)
+	message(STATUS "=======================================")
+
+	message(STATUS "=======================================")
+	# unique
+	list(REMOVE_DUPLICATES JANUS_LINK_DIRECTORIES)
+
+	message(STATUS "DIRECTORIES:")
+	foreach (directory IN LISTS JANUS_LINK_DIRECTORIES)
+		message(STATUS "-->\t\t ${directory}")
+	endforeach (directory IN LISTS JANUS_LINK_DIRECTORIES)
+	message(STATUS "=======================================")
+
+	message(STATUS "=======================================")
+	# unique
+	list(REMOVE_DUPLICATES JANUS_LINK_LIBRARIES_NAME)
+
+	message(STATUS "NAMES:")
+	foreach (name IN LISTS JANUS_LINK_LIBRARIES_NAME)
+		message(STATUS "-->\t\t ${name}")
+	endforeach (name IN LISTS JANUS_LINK_LIBRARIES_NAME)
+	message(STATUS "=======================================")
+
+	message(STATUS "=======================================")
+	# unique
+	list(REMOVE_DUPLICATES JANUS_INCLUDE_DIRECTORIES)
+
+	message(STATUS "INCLUDE:")
+	foreach (inc IN LISTS JANUS_INCLUDE_DIRECTORIES)
+		message(STATUS "-->\t\t ${inc}")
+	endforeach (inc IN LISTS JANUS_INCLUDE_DIRECTORIES)
+	message(STATUS "=======================================")
+
+	message(STATUS "=======================================")
+	# unique
+	list(REMOVE_DUPLICATES JANUS_COMPILE_FLAGS)
+
+	message(STATUS "COMPILE FLAGS:")
+	foreach (flag IN LISTS JANUS_COMPILE_FLAGS)
+		message(STATUS "-->\t\t ${flag}")
+	endforeach (flag IN LISTS JANUS_COMPILE_FLAGS)
+	message(STATUS "=======================================")
+
+	message(STATUS "=======================================")
+	# unique
+	list(REMOVE_DUPLICATES JANUS_COMPILE_DEFINITIONS)
+
+	message(STATUS "COMPILE DEFINITIONS:")
+	foreach (definition IN LISTS JANUS_COMPILE_DEFINITIONS)
+		message(STATUS "-->\t\t ${definition}")
+	endforeach (definition IN LISTS JANUS_COMPILE_DEFINITIONS)
+	message(STATUS "=======================================")
+
+	message(STATUS "=======================================")
+	# unique
+	list(REMOVE_DUPLICATES JANUS_COMPILE_DEFINITIONS)
+
+	message(STATUS "LD FLAGS:")
+	foreach (flag IN LISTS JANUS_LD_FLAGS)
+		message(STATUS "-->\t\t ${flag}")
+	endforeach (flag IN LISTS JANUS_LD_FLAGS)
+	message(STATUS "=======================================")
+endfunction(janus_print_all_dependencies_info)
+
 function(janus_append_link_libraries)
 	foreach (it_lib ${ARGN})
 		janus_verbose_message("Append link library [${it_lib}]")
