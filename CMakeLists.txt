@@ -1,29 +1,30 @@
 ﻿cmake_minimum_required(VERSION 3.20)
 
-set(PROJECT_NAME_PREFIX "CMakeTemplateProject_")
-
 set(
-		${PROJECT_NAME_PREFIX}MAJOR_VERSION
+		JANUS_MAJOR_VERSION
 		1
 )
 
 set(
-		${PROJECT_NAME_PREFIX}MINOR_VERSION
-		2
+		JANUS_MINOR_VERSION
+		1
 )
 
 set(
-		${PROJECT_NAME_PREFIX}PATCH_VERSION
+		JANUS_PATCH_VERSION
 		0
 )
 
-set(${PROJECT_NAME_PREFIX}VERSION ${${PROJECT_NAME_PREFIX}MAJOR_VERSION}.${${PROJECT_NAME_PREFIX}MINOR_VERSION}.${${PROJECT_NAME_PREFIX}PATCH_VERSION})
+set(
+		JANUS_VERSION
+		${JANUS_MAJOR_VERSION}.${JANUS_MINOR_VERSION}.${JANUS_PATCH_VERSION}
+)
 
 # Determine if our project is built as a subproject (using add_subdirectory)
 # or if it is the master project.
-set(${PROJECT_NAME_PREFIX}MASTER_PROJECT OFF)
+set(JANUS_MASTER_PROJECT OFF)
 if (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-	set(${PROJECT_NAME_PREFIX}MASTER_PROJECT ON)
+	set(JANUS_MASTER_PROJECT ON)
 else ()
 endif (CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
 
@@ -32,7 +33,7 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/cmake_utils/doc_var.cmake)
 # Set the default CMAKE_BUILD_TYPE to RelWithDebInfo.
 # This should be done before the project command since the latter can set
 # CMAKE_BUILD_TYPE itself.
-if (${PROJECT_NAME_PREFIX}MASTER_PROJECT AND NOT CMAKE_BUILD_TYPE)
+if (JANUS_MASTER_PROJECT AND NOT CMAKE_BUILD_TYPE)
 	doc_var(
 			CMAKE_BUILD_TYPE
 			RelWithDebInfo
@@ -43,18 +44,19 @@ if (${PROJECT_NAME_PREFIX}MASTER_PROJECT AND NOT CMAKE_BUILD_TYPE)
 endif ()
 
 project(
-		CMakeTemplateProject
-		VERSION ${${PROJECT_NAME_PREFIX}VERSION}
-		DESCRIPTION "CMake Template Project"
-		HOMEPAGE_URL "https://github.com/Life4gal/CMakeTemplateProject"
-		LANGUAGES CXX
+		janus
+		VERSION ${JANUS_VERSION}
+		DESCRIPTION https://janus.conf.meetecho.com
+		HOMEPAGE_URL https://github.com/meetecho/janus-gateway
+		LANGUAGES C
 )
-if (${${PROJECT_NAME_PREFIX}MASTER_PROJECT})
+
+if (${JANUS_MASTER_PROJECT})
 	message(STATUS "Our project [${PROJECT_NAME}] is the main-project. CMAKE VERSION: ${CMAKE_VERSION}. Compiler ID: ${CMAKE_CXX_COMPILER_ID}. Platform: ${CMAKE_SYSTEM_NAME}.")
 else ()
 	message(STATUS "Our project [${PROJECT_NAME}] is the sub-project. CMAKE VERSION: ${CMAKE_VERSION}. Compiler ID: ${CMAKE_CXX_COMPILER_ID}. Platform: ${CMAKE_SYSTEM_NAME}.")
-endif (${${PROJECT_NAME_PREFIX}MASTER_PROJECT})
-message(STATUS "${PROJECT_NAME} VERSION: ${${PROJECT_NAME_PREFIX}VERSION}")
+endif (${JANUS_MASTER_PROJECT})
+message(STATUS "${PROJECT_NAME} VERSION: ${JANUS_VERSION}")
 message(STATUS "${PROJECT_NAME} BUILD TYPE: ${CMAKE_BUILD_TYPE}")
 
 include(GNUInstallDirs)
@@ -66,67 +68,118 @@ include(${PROJECT_SOURCE_DIR}/cmake_utils/CPM.cmake)
 set(CPM_USE_LOCAL_PACKAGES ON)
 include(${PROJECT_SOURCE_DIR}/cmake_utils/cpm_install.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake_utils/nuget_install.cmake)
-set(${PROJECT_NAME_PREFIX}3RD_PARTY_PATH ${PROJECT_SOURCE_DIR}/3rd-party)
+set(JANUS_3RD_PARTY_PATH ${PROJECT_SOURCE_DIR}/3rd-party)
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-	set(${PROJECT_NAME_PREFIX}PLATFORM_WINDOWS ON)
-	set(${PROJECT_NAME_PREFIX}PLATFORM ${PROJECT_NAME_PREFIX}PLATFORM_WINDOWS)
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	set(${PROJECT_NAME_PREFIX}PLATFORM_LINUX ON)
-	set(${PROJECT_NAME_PREFIX}PLATFORM ${PROJECT_NAME_PREFIX}PLATFORM_LINUX)
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-	set(${PROJECT_NAME_PREFIX}PLATFORM_MACOS ON)
-	set(${PROJECT_NAME_PREFIX}PLATFORM ${PROJECT_NAME_PREFIX}PLATFORM_MACOS)
-else()
-	message(FATAL_ERROR "Unsupported Platform: ${CMAKE_SYSTEM_NAME}")
-endif(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+	set(JANUS_PLATFORM_LINUX ON)
+	set(JANUS_PLATFORM JANUS_PLATFORM_LINUX)
+elseif (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+	set(JANUS_PLATFORM_MACOS ON)
+	set(JANUS_PLATFORM JANUS_PLATFORM_MACOS)
+else ()
+	string(REGEX MATCH "^.*BSD" JANUS_PLATFORM_BSD_MATCH_RESULT ${CMAKE_SYSTEM_NAME})
+	if (JANUS_PLATFORM_BSD_MATCH_RESULT)
+		set(JANUS_PLATFORM_${CMAKE_SYSTEM_NAME} ON)
+		set(JANUS_PLATFORM JANUS_PLATFORM_${CMAKE_SYSTEM_NAME})
+
+		# extra for *BSD
+		set(JANUS_PLATFORM_IS_BSD ON)
+	else ()
+		message(FATAL_ERROR "Unsupported Platform: ${CMAKE_SYSTEM_NAME}")
+	endif (JANUS_PLATFORM_BSD_MATCH_RESULT)
+endif (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 
 doc_var(
-		${PROJECT_NAME_PREFIX}INSTALL_HEADERS
+		JANUS_INSTALL_HEADERS
 		${CMAKE_INSTALL_INCLUDEDIR}
 		STRING
 		"Installation directory for include files, a relative path that "
 		"will be joined with ${CMAKE_INSTALL_PREFIX} or an absolute path."
 )
 
-option(${PROJECT_NAME_PREFIX}PEDANTIC "Enable extra warnings and expensive tests." ON)
-option(${PROJECT_NAME_PREFIX}WERROR "Halt the compilation with an error on compiler warnings." ON)
-option(${PROJECT_NAME_PREFIX}DOC "Generate the doc target." ${${PROJECT_NAME_PREFIX}MASTER_PROJECT}) # Do we have the documentation? :)
-option(${PROJECT_NAME_PREFIX}INSTALL "Generate the install target." ${${PROJECT_NAME_PREFIX}MASTER_PROJECT})
-option(${PROJECT_NAME_PREFIX}TEST "Generate the test target." ${${PROJECT_NAME_PREFIX}MASTER_PROJECT})
-option(${PROJECT_NAME_PREFIX}SYSTEM_HEADERS "Expose headers with marking them as system.(This allows other libraries that use this library to ignore the warnings generated by this library.)" OFF)
+# TODO: option only allows `TRUE`/`FALSE`, but not `maybe`
+#   If xxx is `OFF` and xxx_TRY_USE is `ON` then `target-library` will be attempted (skipped if not found).
+#   If xxx is `ON` and `target-library` cannot be found then compilation will stop.
+
+option(JANUS_DOC "Enable building documentation." OFF)
+option(JANUS_DATA_CHANNELS "Disable DataChannels." ON)
+option(JANUS_BORINGSSL "Use BoringSSL instead of OpenSSL." OFF)
+option(JANUS_LIBSRTP2 "Use libsrtp 2.0.x instead of libsrtp 1.5.x." ON)
+option(JANUS_DISABLE_ASE_GCM "Disable AES-GCM support in libsrtp(2)" OFF)
+option(JANUS_DTLS_SET_TIMEOUT "Use DTLSv1_set_initial_timeout_duration (only available in recent BoringSSL versions)" ON)
+option(JANUS_PTHREAD_MUTEX "Use pthread_mutex instead of GMutex (see #1397)" ON)
+option(JANUS_TURN_REST_API "Disable TURN REST API client (via libcurl)" ON)
+
+# plugins
+option(JANUS_PLUGIN_AUDIO_BRIDGE "" OFF)
+option(JANUS_PLUGIN_AUDIO_BRIDGE_TRY_USE "" ON)
+
+option(JANUS_PLUGIN_DUKTAPE "" OFF)
+option(JANUS_PLUGIN_DUKTAPE_TRY_USE "" ON)
+
+option(JANUS_PLUGIN_ECHO_TEST "" OFF)
+
+option(JANUS_PLUGIN_LUA "" OFF)
+option(JANUS_PLUGIN_LUA_TRY_USE "" ON)
+
+option(JANUS_PLUGIN_RECORD_PLAY "" OFF)
+
+option(JANUS_PLUGIN_SIP "" OFF)
+option(JANUS_PLUGIN_SIP_TRY_USE "" ON)
+
+option(JANUS_PLUGIN_NO_SIP "" OFF)
+option(JANUS_PLUGIN_STREAMING "" OFF)
+option(JANUS_PLUGIN_TEXT_ROOM "" OFF)
+option(JANUS_PLUGIN_VIDEO_CALL "" OFF)
+option(JANUS_PLUGIN_VIDEO_ROOM "" OFF)
+
+option(JANUS_PLUGIN_VOICE_MAIL "" OFF)
+option(JANUS_PLUGIN_VOICE_MAIL_TRY_USE "" ON)
+
+# transport
+option(JANUS_TRANSPORT_REST "Enable REST (HTTP/HTTPS) support" OFF)
+option(JANUS_TRANSPORT_REST_TRY_USE "Try to enable REST (HTTP/HTTPS) support" ON)
+
+option(JANUS_TRANSPORT_WEBSOCKETS "Enable WebSockets support" OFF)
+option(JANUS_TRANSPORT_RABBITMQ "Enable RabbitMQ integration" OFF)
+option(JANUS_TRANSPORT_MQTT "Enable MQTT integration" OFF)
+option(JANUS_TRANSPORT_NANOMSG "Enable Nanomsg integration" OFF)
+option(JANUS_TRANSPORT_UNIX_SOCKETS "Enable Unix Sockets integration" OFF)
+
+# handler
+option(JANUS_HANDLER_SAMPLE "Enable sample event handler (HTTP POST)" OFF)
+option(JANUS_HANDLER_WEBSOCKETS "Enable WebSockets event handler" OFF)
+option(JANUS_HANDLER_RABBITMQ "Enable RabbitMQ event handler" OFF)
+option(JANUS_HANDLER_MQTT "Enable MQTT event handler" OFF)
+option(JANUS_HANDLER_NANOMSG "Enable Nanomsg event handler" OFF)
+option(JANUS_HANDLER_GELF "Enable gelf event handler" OFF)
+
+# logger
+option(JANUS_LOGGER_JSON "Enable external JSON file logger" OFF)
+
+# js module
+option(JANUS_JS_MODULE_ES "Generate an ECMAScript style module from janus.js" ON)
+option(JANUS_JS_MODULE_UMD "Generate an UMD style module from janus.js" ON)
+option(JANUS_JS_MODULE_IIFE "Generate an IIFE style wrapper around janus.js" ON)
+option(JANUS_JS_MODULE_COMMON "Generate an CommonJS style module from janus.js" ON)
+
+option(JANUS_SYSTEMD_SOCKETS "Enable Systemd Unix Sockets management" OFF)
+
+option(JANUS_POST_PROCESSING "Enable building post-processing utility" OFF)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-#set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-if (NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
-endif ()
-
-set(${PROJECT_NAME_PREFIX}MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
-set(${PROJECT_NAME_PREFIX}TEMP_MODULE_PATH ${CMAKE_BINARY_DIR}/cmake_modules)
-# Folders that do not exist must be created first, otherwise configure_file does not have permission to create the file.
-file(MAKE_DIRECTORY ${${PROJECT_NAME_PREFIX}TEMP_MODULE_PATH})
-list(APPEND CMAKE_MODULE_PATH ${${PROJECT_NAME_PREFIX}MODULE_PATH})
-list(APPEND CMAKE_MODULE_PATH ${${PROJECT_NAME_PREFIX}TEMP_MODULE_PATH})
-
-# A folder for temporary storage of header files, for some header-only projects, it is much easier to download just a single file than to download the whole project.
-set(${PROJECT_NAME_PREFIX}TEMP_HEADER_PATH ${CMAKE_BINARY_DIR}/temp_include)
-file(MAKE_DIRECTORY ${${PROJECT_NAME_PREFIX}TEMP_HEADER_PATH})
-
-# A folder for temporary storage of downloaded and decompressed files.
-set(${PROJECT_NAME_PREFIX}TEMP_ARCHIVE_PATH ${CMAKE_BINARY_DIR}/temp_archive)
-file(MAKE_DIRECTORY ${${PROJECT_NAME_PREFIX}TEMP_ARCHIVE_PATH})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Macros about the compiler.
-set(${PROJECT_NAME_PREFIX}COMPILER_ID ${CMAKE_CXX_COMPILER_ID})
-set(${PROJECT_NAME_PREFIX}COMPILER_VERSION ${CMAKE_CXX_COMPILER_VERSION})
-set(${PROJECT_NAME_PREFIX}COMPILER_NAME ${${PROJECT_NAME_PREFIX}COMPILER_ID}.${${PROJECT_NAME_PREFIX}COMPILER_VERSION})
+set(JANUS_COMPILER_ID ${CMAKE_C_COMPILER_ID})
+set(JANUS_COMPILER_VERSION ${CMAKE_C_COMPILER_VERSION})
+set(JANUS_COMPILER_NAME ${JANUS_COMPILER_ID}.${JANUS_COMPILER_VERSION})
 
-if (${PROJECT_NAME_PREFIX}MASTER_PROJECT AND NOT DEFINED CMAKE_CXX_VISIBILITY_PRESET)
+if (JANUS_MASTER_PROJECT AND NOT DEFINED CMAKE_CXX_VISIBILITY_PRESET)
 	doc_var(
 			CMAKE_CXX_VISIBILITY_PRESET
 			hidden
@@ -140,341 +193,229 @@ if (${PROJECT_NAME_PREFIX}MASTER_PROJECT AND NOT DEFINED CMAKE_CXX_VISIBILITY_PR
 	)
 endif ()
 
-if (${PROJECT_NAME_PREFIX}PLATFORM_WINDOWS)
-	#########################
-	# MSVC / CLANG-CL
-	########################
-	set(${PROJECT_NAME_PREFIX}COMPILE_FLAGS "/D_CRT_SECURE_NO_WARNINGS")
-	if (${PROJECT_NAME_PREFIX}PEDANTIC)
-		list(APPEND ${PROJECT_NAME_PREFIX}COMPILE_FLAGS "/W4")
-	else ()
-		list(APPEND ${PROJECT_NAME_PREFIX}COMPILE_FLAGS "/W3")
-	endif (${PROJECT_NAME_PREFIX}PEDANTIC)
-	if (${PROJECT_NAME_PREFIX}WERROR)
-		list(APPEND ${PROJECT_NAME_PREFIX}COMPILE_FLAGS "/WX")
-	endif ()
-elseif (${PROJECT_NAME_PREFIX}PLATFORM_LINUX)
-	#########################
-	# GCC / CLANG
-	########################
-	set(${PROJECT_NAME_PREFIX}COMPILE_FLAGS "-Wall")
-	if (${PROJECT_NAME_PREFIX}PEDANTIC)
-		list(APPEND ${PROJECT_NAME_PREFIX}COMPILE_FLAGS "-Wextra" "-Wpedantic")
-	endif (${PROJECT_NAME_PREFIX}PEDANTIC)
-	if (${PROJECT_NAME_PREFIX}WERROR)
-		list(APPEND ${PROJECT_NAME_PREFIX}COMPILE_FLAGS "-Werror")
-	endif ()
-elseif (${PROJECT_NAME_PREFIX}PLATFORM_MACOS)
-	#########################
-	# APPLE CLANG
-	########################
-	set(${PROJECT_NAME_PREFIX}COMPILE_FLAGS "-Wall")
-	if (${PROJECT_NAME_PREFIX}PEDANTIC)
-		list(APPEND ${PROJECT_NAME_PREFIX}COMPILE_FLAGS "-Wextra" "-Wpedantic")
-	endif (${PROJECT_NAME_PREFIX}PEDANTIC)
-	if (${PROJECT_NAME_PREFIX}WERROR)
-		list(APPEND ${PROJECT_NAME_PREFIX}COMPILE_FLAGS "-Werror")
-	endif ()
-else ()
-	message(FATAL_ERROR "Unsupported compilers: ${CMAKE_CXX_COMPILER}")
-endif (${PROJECT_NAME_PREFIX}PLATFORM_WINDOWS)
+include(${PROJECT_SOURCE_DIR}/cmake_utils/check_dependencies.cmake)
 
-if (${PROJECT_NAME_PREFIX}SYSTEM_HEADERS)
-	set(${PROJECT_NAME_PREFIX}HEADER_ATTRIBUTES SYSTEM)
-else ()
-	set(${PROJECT_NAME_PREFIX}HEADER_ATTRIBUTES)
-endif (${PROJECT_NAME_PREFIX}SYSTEM_HEADERS)
-
-# HEADER FILES
-#file(
-#		GLOB_RECURSE
-#		${PROJECT_NAME_PREFIX}HEADER
-#		CONFIGURE_DEPENDS
-#
-#		${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/*.hpp
-#)
-set(
-		${PROJECT_NAME_PREFIX}HEADER
-
-		${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/hello.hpp
-		${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/easy_network.hpp
+janus_append_compile_flags(
+		-fPIC
+		-fstack-protector-all
+		-fstrict-aliasing
+		-ggdb3
+		-pthread
+		-Wall
+		-Warray-bounds
+		-Wextra
+		-Wformat-nonliteral
+		-Wformat-security
+		-Wformat=2
+		-Winit-self
+		-Wlarger-than=65537
+		-Wmissing-declarations
+		-Wmissing-format-attribute
+		-Wmissing-include-dirs
+		-Wmissing-noreturn
+		-Wmissing-prototypes
+		-Wnested-externs
+		-Wold-style-definition
+		-Wpacked
+		-Wpointer-arith
+		-Wsign-compare
+		-Wstrict-prototypes
+		-Wswitch-default
+		-Wunused
+		-Wno-unused-parameter
+		-Wno-unused-result
+		-Wwrite-strings
+		-Werror=implicit-function-declaration
 )
 
-# SOURCE FILES
-#file(
-#		GLOB_RECURSE
-#		${PROJECT_NAME_PREFIX}SOURCE
-#		CONFIGURE_DEPENDS
-#
-#		${PROJECT_SOURCE_DIR}/src/*.cpp
-#)
-set(
-		${PROJECT_NAME_PREFIX}SOURCE
+if (JANUS_COMPILER_ID MATCHES gcc)
+	janus_append_compile_flags(
+			-Wcast-align
+			-Wno-initializer-overrides
+			-Wno-override-init
+			-Wunsafe-loop-optimizations
+			-Wunused-but-set-variable
+	)
+elseif (JANUS_COMPILER_ID MATCHES clang)
+	janus_append_compile_flags(
+			-Wcast-align
+			-Wno-initializer-overrides
+	)
+endif (JANUS_COMPILER_ID MATCHES gcc)
 
-		${PROJECT_SOURCE_DIR}/src/hello.cpp
-		${PROJECT_SOURCE_DIR}/src/easy_network.cpp
+if (JANUS_PLATFORM_MACOS)
+	janus_append_ld_flags(
+			-Wl,-export_dynamic
+			# TODO
+			-L/usr/local/lib -L/usr/local/opt/openssl/lib -L/opt/local/lib -L/usr/local/libsrtp/lib
+	)
+elseif (JANUS_PLATFORM_IS_BSD)
+	janus_append_ld_flags(
+			-Xlinker --export-dynamic
+			# TODO
+			-L/usr/lib/openssl -lcrypto -lssl -L/usr/local/lib
+	)
+else ()
+	janus_append_ld_flags(
+			-Wl,--export-dynamic
+	)
+endif (JANUS_PLATFORM_MACOS)
+
+set(
+		JANUS_HEADER_FILES_PATH
+		${PROJECT_SOURCE_DIR}/include
 )
 
-# LIBRARY
+set(
+		JANUS_SOURCE_FILES_PATH
+		${PROJECT_SOURCE_DIR}/src
+)
+
+set(
+		JANUS_HEADER_FILES
+
+		${JANUS_HEADER_FILES_PATH}/apierror.h
+		${JANUS_HEADER_FILES_PATH}/auth.h
+		${JANUS_HEADER_FILES_PATH}/config.h
+		${JANUS_HEADER_FILES_PATH}/debug.h
+		${JANUS_HEADER_FILES_PATH}/dtls.h
+		${JANUS_HEADER_FILES_PATH}/dtls-bio.h
+		${JANUS_HEADER_FILES_PATH}/events.h
+		${JANUS_HEADER_FILES_PATH}/ice.h
+		${JANUS_HEADER_FILES_PATH}/janus.h
+		${JANUS_HEADER_FILES_PATH}/log.h
+		${JANUS_HEADER_FILES_PATH}/mutex.h
+		${JANUS_HEADER_FILES_PATH}/options.h
+		${JANUS_HEADER_FILES_PATH}/record.h
+		${JANUS_HEADER_FILES_PATH}/refcount.h
+		${JANUS_HEADER_FILES_PATH}/rtcp.h
+		${JANUS_HEADER_FILES_PATH}/rtp.h
+		${JANUS_HEADER_FILES_PATH}/rtpsrtp.h
+		${JANUS_HEADER_FILES_PATH}/sctp.h
+		${JANUS_HEADER_FILES_PATH}/sdp.h
+		${JANUS_HEADER_FILES_PATH}/sdp-utils.h
+		${JANUS_HEADER_FILES_PATH}/ip-utils.h
+		${JANUS_HEADER_FILES_PATH}/turnrest.h
+		${JANUS_HEADER_FILES_PATH}/utils.h
+		${JANUS_HEADER_FILES_PATH}/version.h
+		${JANUS_HEADER_FILES_PATH}/text2pcap.h
+
+		${JANUS_HEADER_FILES_PATH}/plugins/plugin.h
+
+		${JANUS_HEADER_FILES_PATH}/transports/transport.h
+
+		${JANUS_HEADER_FILES_PATH}/events/eventhandler.h
+
+		${JANUS_HEADER_FILES_PATH}/loggers/logger.h
+)
+
+set(
+		JANUS_SOURCE_FILES
+
+		${JANUS_HEADER_FILES_PATH}/apierror.c
+		${JANUS_HEADER_FILES_PATH}/auth.c
+		${JANUS_HEADER_FILES_PATH}/config.c
+		${JANUS_HEADER_FILES_PATH}/dtls.c
+		${JANUS_HEADER_FILES_PATH}/dtls-bio.c
+		${JANUS_HEADER_FILES_PATH}/events.c
+		${JANUS_HEADER_FILES_PATH}/ice.c
+		${JANUS_HEADER_FILES_PATH}/janus.c
+		${JANUS_HEADER_FILES_PATH}/log.c
+		${JANUS_HEADER_FILES_PATH}/mutex.c
+		${JANUS_HEADER_FILES_PATH}/options.c
+		${JANUS_HEADER_FILES_PATH}/record.c
+		${JANUS_HEADER_FILES_PATH}/refcount.c
+		${JANUS_HEADER_FILES_PATH}/rtcp.c
+		${JANUS_HEADER_FILES_PATH}/rtp.c
+		${JANUS_HEADER_FILES_PATH}/sctp.c
+		${JANUS_HEADER_FILES_PATH}/sdp.c
+		${JANUS_HEADER_FILES_PATH}/sdp-utils.c
+		${JANUS_HEADER_FILES_PATH}/ip-utils.c
+		${JANUS_HEADER_FILES_PATH}/turnrest.c
+		${JANUS_HEADER_FILES_PATH}/utils.c
+		${JANUS_HEADER_FILES_PATH}/version.c
+		${JANUS_HEADER_FILES_PATH}/text2pcap.c
+
+		${JANUS_HEADER_FILES_PATH}/plugins/plugin.c
+
+		${JANUS_HEADER_FILES_PATH}/transports/transport.c
+
+		${JANUS_HEADER_FILES_PATH}/turnrest.c
+)
+
+# EXECUTABLE
+
+# MAIN EXECUTABLE
 add_library(
 		${PROJECT_NAME}
 
-		${${PROJECT_NAME_PREFIX}HEADER}
-		${${PROJECT_NAME_PREFIX}SOURCE}
-)
-
-# LIBRARY ALIAS
-add_library(
-		${PROJECT_NAME}::${PROJECT_NAME}
-		ALIAS
-		${PROJECT_NAME}
+		${JANUS_HEADER_FILES}
+		${JANUS_SOURCE_FILES}
 )
 
 # SET FLAGS
 target_compile_options(
 		${PROJECT_NAME}
 		PRIVATE
-		${${PROJECT_NAME_PREFIX}COMPILE_FLAGS}
+		${JANUS_COMPILE_FLAGS}
 )
 
 # SET DEFINITIONS
 target_compile_definitions(
 		${PROJECT_NAME}
-		PUBLIC
+		PRIVATE
 
-		${PROJECT_NAME_PREFIX}MAJOR_VERSION=${${PROJECT_NAME_PREFIX}MAJOR_VERSION}
-		${PROJECT_NAME_PREFIX}MINOR_VERSION=${${PROJECT_NAME_PREFIX}MINOR_VERSION}
-		${PROJECT_NAME_PREFIX}PATCH_VERSION=${${PROJECT_NAME_PREFIX}PATCH_VERSION}
-		${PROJECT_NAME_PREFIX}VERSION="${${PROJECT_NAME_PREFIX}VERSION}"
-		${PROJECT_NAME_PREFIX}COMPILER_ID="${${PROJECT_NAME_PREFIX}COMPILER_ID}"
-		${PROJECT_NAME_PREFIX}COMPILER_VERSION="${${PROJECT_NAME_PREFIX}COMPILER_VERSION}"
-		${PROJECT_NAME_PREFIX}COMPILER_NAME="${${PROJECT_NAME_PREFIX}COMPILER_NAME}"
-		${${PROJECT_NAME_PREFIX}PLATFORM}
-
-		# Tool macros for platform determination.
-		$<$<CXX_COMPILER_ID:MSVC>:${PROJECT_NAME_PREFIX}COMPILER_MSVC>
-		$<$<CXX_COMPILER_ID:GNU>:${PROJECT_NAME_PREFIX}COMPILER_GNU>
-		# clang-cl
-		$<$<AND:$<CXX_COMPILER_ID:Clang>,$<STREQUAL:"${CMAKE_CXX_SIMULATE_ID}","MSVC">>:${PROJECT_NAME_PREFIX}COMPILER_CLANG_CL>
-		# clang
-		$<$<AND:$<CXX_COMPILER_ID:Clang>,$<NOT:$<STREQUAL:"${CMAKE_CXX_SIMULATE_ID}","MSVC">>>:${PROJECT_NAME_PREFIX}COMPILER_CLANG>
-		# apple clang
-		$<$<CXX_COMPILER_ID:AppleClang>:${PROJECT_NAME_PREFIX}COMPILER_APPLE_CLANG>
-)
-# build .dll/.so
-if (BUILD_SHARED_LIBS)
-	target_compile_definitions(
-			${PROJECT_NAME}
-			PRIVATE ${PROJECT_NAME_PREFIX}EXPORT
-			INTERFACE ${PROJECT_NAME_PREFIX}SHARED
-	)
-endif ()
-
-# SET FEATURES
-target_compile_features(
-		${PROJECT_NAME}
-		PUBLIC
-		cxx_std_20
+		${JANUS_COMPILE_DEFINITIONS}
 )
 
 # SET INCLUDE DIRECTORY
 target_include_directories(
 		${PROJECT_NAME}
-		${${PROJECT_NAME_PREFIX}HEADER_ATTRIBUTES}
 		PUBLIC
-		$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-		$<INSTALL_INTERFACE:${${PROJECT_NAME_PREFIX}INSTALL_HEADERS}/${PROJECT_NAME}-${PROJECT_VERSION}>
-)
-target_include_directories(
-		${PROJECT_NAME}
-		SYSTEM
-		PRIVATE
-		$<BUILD_INTERFACE:${${PROJECT_NAME_PREFIX}TEMP_HEADER_PATH}>
+		$<BUILD_INTERFACE:${JANUS_HEADER_FILES_PATH}>
+		$<INSTALL_INTERFACE:${JANUS_INSTALL_HEADERS}/${PROJECT_NAME}-${PROJECT_VERSION}>
 )
 
 # LINK 3rd-PARTY LIBRARIES
-set(${PROJECT_NAME_PREFIX}3RD_PARTY_DEPENDENCIES "")
-include(${${PROJECT_NAME_PREFIX}3RD_PARTY_PATH}/fmtlib/fmt.cmake)
-include(${${PROJECT_NAME_PREFIX}3RD_PARTY_PATH}/spdlog/spdlog.cmake)
-include(${${PROJECT_NAME_PREFIX}3RD_PARTY_PATH}/openssl/openssl.cmake)
-include(${${PROJECT_NAME_PREFIX}3RD_PARTY_PATH}/curl/curl.cmake)
-include(${${PROJECT_NAME_PREFIX}3RD_PARTY_PATH}/stb/image.cmake)
-include(${${PROJECT_NAME_PREFIX}3RD_PARTY_PATH}/freetype/freetype.cmake)
-include(${${PROJECT_NAME_PREFIX}3RD_PARTY_PATH}/fontconfig/fontconfig.cmake)
+target_link_directories(
+		${PROJECT_NAME}
+		PRIVATE
+		${JANUS_LINK_DIRECTORIES}
+)
+
+target_link_libraries(
+		${PROJECT_NAME}
+		PRIVATE
+		${JANUS_LINK_LIBRARIES}
+)
 
 message(STATUS "=======================================")
+# unique
+list(REMOVE_DUPLICATES JANUS_LINK_LIBRARIES_NAME)
+
 message(STATUS "[${PROJECT_NAME}] DEPENDENCIES:")
-foreach(DEPENDENCY IN LISTS ${PROJECT_NAME_PREFIX}3RD_PARTY_DEPENDENCIES)
-	message(STATUS "-->\t\t ${DEPENDENCY}")
-endforeach(DEPENDENCY IN LISTS ${PROJECT_NAME_PREFIX}3RD_PARTY_DEPENDENCIES)
+foreach (library IN LISTS JANUS_LINK_LIBRARIES_NAME)
+	message(STATUS "-->\t\t ${library}")
+endforeach (library IN LISTS JANUS_LINK_LIBRARIES_NAME)
 message(STATUS "=======================================")
 
 # SET DEBUG POSTFIX ==> lib${PROJECT_NAME} -> Release lib${PROJECT}d -> Debug
-set(${PROJECT_NAME_PREFIX}DEBUG_POSTFIX d CACHE STRING "Debug library postfix.")
+set(JANUS_DEBUG_POSTFIX d CACHE STRING "Debug library postfix.")
 set_target_properties(
 		${PROJECT_NAME}
 		PROPERTIES
-		VERSION ${${PROJECT_NAME_PREFIX}VERSION}
-		SOVERSION ${${PROJECT_NAME_PREFIX}MAJOR_VERSION}
-		PUBLIC_HEADER "${${PROJECT_NAME_PREFIX}HEADER}"
-		DEBUG_POSTFIX "${${PROJECT_NAME_PREFIX}DEBUG_POSTFIX}")
-
-# INSTALL TARGETS
-if (${PROJECT_NAME_PREFIX}INSTALL)
-#	include(CMakePackageConfigHelpers)
-#	doc_var(
-#			${PROJECT_NAME_PREFIX}CMAKE_DIR
-#			${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
-#			STRING
-#			"Installation directory for cmake files, a relative path that "
-#			"will be joined with ${CMAKE_INSTALL_PREFIX} or an absolute "
-#			"path."
-#	)
-#
-#	set(version_config ${PROJECT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake)
-#	set(project_config ${PROJECT_BINARY_DIR}/${PROJECT_NAME}-config.cmake)
-#	set(pkgconfig ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.pc)
-#	set(targets_export_name ${PROJECT_NAME}-targets)
-#
-#	doc_var(
-#			${PROJECT_NAME_PREFIX}LIB_DIR
-#			${CMAKE_INSTALL_LIBDIR}
-#			STRING
-#			"Installation directory for libraries, a relative path that "
-#			"will be joined to ${CMAKE_INSTALL_PREFIX} or an absolute path."
-#	)
-#
-#	doc_var(
-#			${PROJECT_NAME_PREFIX}PKGCONFIG_DIR
-#			${CMAKE_INSTALL_LIBDIR}/pkgconfig
-#			PATH
-#			"Installation directory for pkgconfig (.pc) files, a relative "
-#			"path that will be joined with ${CMAKE_INSTALL_PREFIX} or an "
-#			"absolute path."
-#	)
-#
-#	# Generate the version, config and target files into the build directory.
-#	write_basic_package_version_file(
-#			${version_config}
-#			VERSION ${${PROJECT_NAME_PREFIX}VERSION}
-#			COMPATIBILITY AnyNewerVersion
-#	)
-#
-#	# Set ${PROJECT_NAME_PREFIX}LIB_NAME for pkg-config ${PROJECT_NAME}.pc.
-#	# We cannot use the OUTPUT_NAME target
-#	# property because it's not set by default.
-#	set(${PROJECT_NAME_PREFIX}LIB_NAME ${PROJECT_NAME})
-#	if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-#		set(${PROJECT_NAME_PREFIX}LIB_NAME "${${PROJECT_NAME_PREFIX}LIB_NAME}${${PROJECT_NAME_PREFIX}DEBUG_POSTFIX}")
-#	endif ()
-#
-#	# `exec_prefix` and `preifx` defined in `${PROJECT_NAME}-config.pc.in`
-#	set(library_path_for_pc_file "\${exec_prefix}/${${PROJECT_NAME_PREFIX}LIB_DIR}")
-#	set(include_path_for_pc_file "\${prefix}/${${PROJECT_NAME_PREFIX}INSTALL_HEADERS}")
-#
-#	if (EXISTS "${CMAKE_SOURCE_DIR}/cmake_modules/${PROJECT_NAME}.pc.in")
-#		configure_file(
-#				"${CMAKE_SOURCE_DIR}/cmake_modules/${PROJECT_NAME}.pc.in"
-#				"${pkgconfig}"
-#				@ONLY)
-#	else ()
-#		message(FATAL_ERROR "Can't find the configuration file ${CMAKE_SOURCE_DIR}/${PROJECT_NAME}.pc.in!")
-#	endif ()
-#
-#	if (EXISTS "${CMAKE_SOURCE_DIR}/cmake_modules/${PROJECT_NAME}-config.cmake.in")
-#		configure_package_config_file(
-#				${CMAKE_SOURCE_DIR}/cmake_modules/${PROJECT_NAME}-config.cmake.in
-#				${project_config}
-#				INSTALL_DESTINATION ${${PROJECT_NAME_PREFIX}CMAKE_DIR})
-#	else ()
-#		message(FATAL_ERROR "Can't find the configuration file ${CMAKE_SOURCE_DIR}/${PROJECT_NAME}-config.cmake.in!")
-#	endif (EXISTS "${CMAKE_SOURCE_DIR}/cmake_modules/${PROJECT_NAME}-config.cmake.in")
-#
-#	set(INSTALL_TARGETS ${PROJECT_NAME})
-#
-#	# Install the library and headers.
-#	install(
-#			TARGETS ${INSTALL_TARGETS}
-#			EXPORT ${targets_export_name}
-#			LIBRARY DESTINATION ${${PROJECT_NAME_PREFIX}LIB_DIR}
-#			ARCHIVE DESTINATION ${${PROJECT_NAME_PREFIX}LIB_DIR}
-#			PUBLIC_HEADER DESTINATION "${${PROJECT_NAME_PREFIX}INSTALL_HEADERS}/${PROJECT_NAME}"
-#			FRAMEWORK DESTINATION "."
-#			RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
-#
-#	# Use a namespace because CMake provides better diagnostics for namespaced
-#	# imported targets.
-#	export(
-#			TARGETS ${INSTALL_TARGETS}
-#			NAMESPACE ${PROJECT_NAME}::
-#			FILE ${PROJECT_BINARY_DIR}/${targets_export_name}.cmake)
-#
-#	# Install version, config and target files.
-#	install(
-#			FILES ${project_config} ${version_config}
-#			DESTINATION ${${PROJECT_NAME_PREFIX}CMAKE_DIR}
-#	)
-#	install(
-#			EXPORT ${targets_export_name}
-#			DESTINATION ${${PROJECT_NAME_PREFIX}CMAKE_DIR}
-#			NAMESPACE ${PROJECT_NAME}::
-#	)
-#	#install(
-#	#		FILES $<TARGET_PDB_FILE:${INSTALL_TARGETS}>
-#	#		DESTINATION ${${PROJECT_NAME_PREFIX}LIB_DIR} OPTIONAL
-#	#)
-#	install(
-#			FILES "${pkgconfig}"
-#			DESTINATION "${${PROJECT_NAME_PREFIX}PKGCONFIG_DIR}"
-#	)
-
-	# PackageProject.cmake will be used to make our target installable
-	CPMAddPackage("gh:TheLartians/PackageProject.cmake@1.10.0")
-
-	# the location where the project's version header will be placed should match the project's regular
-	# header paths
-	string(TOLOWER ${PROJECT_NAME}/version.h VERSION_HEADER_LOCATION)
-
-	packageProject(
-			# the name of the target to export
-			NAME ${PROJECT_NAME}
-			# the version of the target to export
-			VERSION ${PROJECT_VERSION}
-			# (optional) install your library with a namespace (Note: do NOT add extra '::')
-			NAMESPACE ${PROJECT_NAME}
-			# a temporary directory to create the config files
-			BINARY_DIR ${PROJECT_BINARY_DIR}
-			# location of the target's public headers
-			# see target_include_directories -> BUILD_INTERFACE
-			INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include
-			# should match the target's INSTALL_INTERFACE include directory
-			# see target_include_directories -> INSTALL_INTERFACE
-			INCLUDE_DESTINATION ${${PROJECT_NAME_PREFIX}INSTALL_HEADERS}/${PROJECT_NAME}-${PROJECT_VERSION}
-			# (optional) create a header containing the version info
-			# Note: that the path to headers should be lowercase
-			VERSION_HEADER "${VERSION_HEADER_LOCATION}"
-			# (optional) define the project's version compatibility, defaults to `AnyNewerVersion`
-			# supported values: `AnyNewerVersion|SameMajorVersion|SameMinorVersion|ExactVersion`
-			COMPATIBILITY AnyNewerVersion
-			# semicolon separated list of the project's dependencies
-			# see `LINK 3rd-PARTY LIBRARIES`
-			DEPENDENCIES ${${PROJECT_NAME_PREFIX}3RD_PARTY_DEPENDENCIES}
-			# (optional) option to disable the versioning of install destinations
-			DISABLE_VERSION_SUFFIX YES
-			# (optional) option to ignore target architecture for package resolution
-			# defaults to YES for header only (i.e. INTERFACE) libraries
-			ARCH_INDEPENDENT YES
-	)
-endif (${PROJECT_NAME_PREFIX}INSTALL)
+		VERSION ${JANUS_VERSION}
+		SOVERSION ${JANUS_MAJOR_VERSION}
+		PUBLIC_HEADER "${JANUS_HEADER_FILES}"
+		DEBUG_POSTFIX "${JANUS_DEBUG_POSTFIX}")
 
 # DOCUMENTS
-if (${PROJECT_NAME_PREFIX}DOC)
-	# add_subdirectory(doc)
-endif (${PROJECT_NAME_PREFIX}DOC)
+if (JANUS_DOC)
+	# TODO
+endif (JANUS_DOC)
 
 # TESTS
-if (${PROJECT_NAME_PREFIX}TEST)
+if (JANUS_TEST)
 	enable_testing()
-	add_subdirectory(standalone_test)
-	add_subdirectory(unit_test)
-endif (${PROJECT_NAME_PREFIX}TEST)
+	# TODO
+endif (JANUS_TEST)
