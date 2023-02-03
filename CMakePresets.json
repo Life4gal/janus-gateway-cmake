@@ -2,50 +2,6 @@
 	"version": 3,
 	"configurePresets": [
 		{
-			"name": "windows-base-msvc",
-			"hidden": true,
-			"generator": "Ninja",
-			"binaryDir": "${sourceDir}/out/build/${presetName}",
-			"installDir": "${sourceDir}/out/install/${presetName}",
-			"cacheVariables": {
-				"CMAKE_C_COMPILER": "cl.exe",
-				"CMAKE_CXX_COMPILER": "cl.exe"
-			},
-			"condition": {
-				"type": "equals",
-				"lhs": "${hostSystemName}",
-				"rhs": "Windows"
-			},
-			"vendor": {
-				"microsoft.com/VisualStudioSettings/CMake/1.0": {
-					"hostOS": [ "Windows" ]
-				}
-			}
-		},
-
-		{
-			"name": "windows-base-clang",
-			"hidden": true,
-			"generator": "Ninja",
-			"binaryDir": "${sourceDir}/out/build/${presetName}",
-			"installDir": "${sourceDir}/out/install/${presetName}",
-			"cacheVariables": {
-				"CMAKE_C_COMPILER": "clang-cl.exe",
-				"CMAKE_CXX_COMPILER": "clang-cl.exe"
-			},
-			"condition": {
-				"type": "equals",
-				"lhs": "${hostSystemName}",
-				"rhs": "Windows"
-			},
-			"vendor": {
-				"microsoft.com/VisualStudioSettings/CMake/1.0": {
-					"hostOS": [ "Windows" ]
-				}
-			}
-		},
-
-		{
 			"name": "linux-base-gcc",
 			"hidden": true,
 			"generator": "Ninja",
@@ -92,80 +48,6 @@
 				"microsoft.com/VisualStudioRemoteSettings/CMake/1.0": {
 					"sourceDir": "$env{HOME}/.vs/$ms{projectDirName}"
 				}
-			}
-		},
-
-		{
-			"name": "win-x64-Debug-MSVC",
-			"displayName": "Windows x64 Debug MSVC",
-			"inherits": "windows-base-msvc",
-			"architecture": {
-				"value": "x64",
-				"strategy": "external"
-			},
-			"cacheVariables": {
-				"CMAKE_BUILD_TYPE": "Debug"
-			}
-		},
-		{
-			"name": "win-x64-Release-MSVC",
-			"displayName": "Windows x64 Release MSVC",
-			"inherits": "win-x64-Debug-MSVC",
-			"cacheVariables": {
-				"CMAKE_BUILD_TYPE": "Release"
-			}
-		},
-		{
-			"name": "win-x64-MinSizeRel-MSVC",
-			"displayName": "Windows x64 MinSizeRel MSVC",
-			"inherits": "win-x64-Debug-MSVC",
-			"cacheVariables": {
-				"CMAKE_BUILD_TYPE": "MinSizeRel"
-			}
-		},
-		{
-			"name": "win-x64-RelWithDebInfo-MSVC",
-			"displayName": "Windows x64 RelWithDebInfo MSVC",
-			"inherits": "win-x64-Debug-MSVC",
-			"cacheVariables": {
-				"CMAKE_BUILD_TYPE": "RelWithDebInfo"
-			}
-		},
-
-		{
-			"name": "win-x64-Debug-CLANG",
-			"displayName": "Windows x64 Debug CLANG",
-			"inherits": "windows-base-clang",
-			"architecture": {
-				"value": "x64",
-				"strategy": "external"
-			},
-			"cacheVariables": {
-				"CMAKE_BUILD_TYPE": "Debug"
-			}
-		},
-		{
-			"name": "win-x64-Release-CLANG",
-			"displayName": "Windows x64 Release CLANG",
-			"inherits": "win-x64-Debug-CLANG",
-			"cacheVariables": {
-				"CMAKE_BUILD_TYPE": "Release"
-			}
-		},
-		{
-			"name": "win-x64-MinSizeRel-CLANG",
-			"displayName": "Windows x64 MinSizeRel CLANG",
-			"inherits": "win-x64-Debug-CLANG",
-			"cacheVariables": {
-				"CMAKE_BUILD_TYPE": "MinSizeRel"
-			}
-		},
-		{
-			"name": "win-x64-RelWithDebInfo-CLANG",
-			"displayName": "Windows x64 RelWithDebInfo CLANG",
-			"inherits": "win-x64-Debug-CLANG",
-			"cacheVariables": {
-				"CMAKE_BUILD_TYPE": "RelWithDebInfo"
 			}
 		},
 
