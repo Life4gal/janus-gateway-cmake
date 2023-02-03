@@ -62,12 +62,6 @@ message(STATUS "${PROJECT_NAME} BUILD TYPE: ${CMAKE_BUILD_TYPE}")
 include(GNUInstallDirs)
 include(CheckCXXCompilerFlag)
 
-include(${PROJECT_SOURCE_DIR}/cmake_utils/CPM.cmake)
-# Let CPMAddPackage first check if the required package exists locally.
-# Compared to CPMFindPackage, CPMAddPackage will call cpm_export_variables after finding the local package.
-set(CPM_USE_LOCAL_PACKAGES ON)
-include(${PROJECT_SOURCE_DIR}/cmake_utils/cpm_install.cmake)
-include(${PROJECT_SOURCE_DIR}/cmake_utils/nuget_install.cmake)
 set(JANUS_3RD_PARTY_PATH ${PROJECT_SOURCE_DIR}/3rd-party)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Linux")
