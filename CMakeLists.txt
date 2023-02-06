@@ -102,7 +102,7 @@ option(JANUS_DATA_CHANNELS "Disable DataChannels." ON)
 option(JANUS_BORINGSSL "Use BoringSSL instead of OpenSSL." OFF)
 option(JANUS_LIBSRTP2 "Use libsrtp 2.0.x instead of libsrtp 1.5.x." ON)
 option(JANUS_DISABLE_ASE_GCM "Disable AES-GCM support in libsrtp(2)" OFF)
-option(JANUS_DTLS_SET_TIMEOUT "Use DTLSv1_set_initial_timeout_duration (only available in recent BoringSSL versions)" ON)
+option(JANUS_DTLS_SET_TIMEOUT "Use DTLSv1_set_initial_timeout_duration (only available in recent BoringSSL versions)" OFF)
 option(JANUS_PTHREAD_MUTEX "Use pthread_mutex instead of GMutex (see #1397)" ON)
 option(JANUS_TURN_REST_API "Disable TURN REST API client (via libcurl)" ON)
 
@@ -282,6 +282,7 @@ execute_process(
 		# ECHO_ERROR_VARIABLE
 		# COMMAND_ERROR_IS_FATAL ANY
 )
+string(REPLACE "\n" "" git_sha ${git_sha})
 #message("result: ${git_result}\n sha: ${git_sha}")
 
 execute_process(
@@ -294,6 +295,7 @@ execute_process(
 		# ECHO_ERROR_VARIABLE
 		# COMMAND_ERROR_IS_FATAL ANY
 )
+string(REPLACE "\n" "" date_time ${date_time})
 #message("result: ${date_result}\n time: ${date_time}")
 
 execute_process(
@@ -306,6 +308,7 @@ execute_process(
 		# ECHO_ERROR_VARIABLE
 		# COMMAND_ERROR_IS_FATAL ANY
 )
+string(REPLACE "\n" "" pkgconfig_nice_version ${pkgconfig_nice_version})
 #message("result: ${pkgconfig_result}\n nice version: ${pkgconfig_nice_version}")
 
 file(
@@ -320,7 +323,7 @@ file(
 		"const char *libnice_version_string = \"${pkgconfig_nice_version}\";\n"
 )
 
-include(${PROJECT_SOURCE_DIR}/cmake_utils/download_project.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake_utils/prepare_project.cmake)
 
 set(
 		JANUS_HEADER_FILES
@@ -459,9 +462,6 @@ target_include_directories(
 # janus_print_all_dependencies_info()
 
 message(STATUS "=======================================")
-# unique
-list(REMOVE_DUPLICATES JANUS_LINK_LIBRARIES_NAME)
-
 message(STATUS "[${PROJECT_NAME}] DEPENDENCIES:")
 foreach (library IN LISTS JANUS_LINK_LIBRARIES_NAME)
 	message(STATUS "-->\t\t ${library}")
