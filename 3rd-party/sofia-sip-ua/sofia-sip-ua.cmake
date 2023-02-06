@@ -19,6 +19,8 @@ function(try_use_ssu)
 	janus_append_include_directories(${LIB_SOFIA_SIP_UA_INCLUDE_DIRS})
 	janus_append_compile_flags(${LIB_SOFIA_SIP_UA_CFLAGS})
 	janus_append_ld_flags(${LIB_SOFIA_SIP_UA_LDFLAGS})
+
+	set(JANUS_DEPENDENCY_SOFIA-SIP-UA_USED ON PARENT_SCOPE)
 endfunction(try_use_ssu)
 
 try_use_ssu()

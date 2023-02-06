@@ -12,6 +12,8 @@ function(try_use_nanomsg)
 	janus_append_compile_flags(${LIB_NANOMSG_CFLAGS})
 	janus_append_ld_flags(${LIB_NANOMSG_LDFLAGS})
 
+	set(JANUS_DEPENDENCY_NANOMSG_USED ON PARENT_SCOPE)
+
 	include(CheckLibraryExists)
 
 	CHECK_LIBRARY_EXISTS(

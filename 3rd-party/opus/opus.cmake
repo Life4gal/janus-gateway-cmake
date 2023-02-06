@@ -19,6 +19,8 @@ function(try_use_opus)
 	janus_append_include_directories(${LIB_OPUS_INCLUDE_DIRS})
 	janus_append_compile_flags(${LIB_OPUS_CFLAGS})
 	janus_append_ld_flags(${LIB_OPUS_LDFLAGS})
+
+	set(JANUS_DEPENDENCY_OPUS_USED ON)
 endfunction(try_use_opus)
 
 try_use_opus()

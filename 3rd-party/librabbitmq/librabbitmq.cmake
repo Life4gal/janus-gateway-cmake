@@ -12,6 +12,8 @@ function(try_use_rabbitmq)
 	janus_append_compile_flags(${LIB_LIBRABBITMQ_CFLAGS})
 	janus_append_ld_flags(${LIB_LIBRABBITMQ_LDFLAGS})
 
+	set(JANUS_DEPENDENCY_LIBRABBITMQ_USED ON PARENT_SCOPE)
+
 	include(CheckLibraryExists)
 
 	CHECK_LIBRARY_EXISTS(

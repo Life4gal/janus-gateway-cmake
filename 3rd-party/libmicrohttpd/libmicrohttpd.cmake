@@ -19,6 +19,8 @@ function(try_use_mhd)
 	janus_append_include_directories(${LIB_LIBMICROHTTPD_INCLUDE_DIRS})
 	janus_append_compile_flags(${LIB_LIBMICROHTTPD_CFLAGS})
 	janus_append_ld_flags(${LIB_LIBMICROHTTPD_LDFLAGS})
+
+	set(JANUS_DEPENDENCY_LIBMICROHTTPD_USED ON PARENT_SCOPE)
 endfunction(try_use_mhd)
 
 try_use_mhd()

@@ -19,6 +19,8 @@ function(try_use_ogg)
 	janus_append_include_directories(${LIB_OGG_INCLUDE_DIRS})
 	janus_append_compile_flags(${LIB_OGG_CFLAGS})
 	janus_append_ld_flags(${LIB_OGG_LDFLAGS})
+
+	set(JANUS_DEPENDENCY_OGG_USED ON PARENT_SCOPE)
 endfunction(try_use_ogg)
 
 try_use_ogg()

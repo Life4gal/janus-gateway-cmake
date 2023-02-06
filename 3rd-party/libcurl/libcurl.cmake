@@ -25,4 +25,6 @@ janus_append_link_directories(${LIB_LIBCURL_LIBRARY_DIRS})
 janus_append_link_libraries_name(${LIB_LIBCURL_LIBRARIES}-${LIB_LIBCURL_VERSION})
 janus_append_include_directories(${LIB_LIBCURL_INCLUDE_DIRS})
 janus_append_compile_flags(${LIB_LIBCURL_CFLAGS})
-janus_append_ld_flags(${LIB_LIBCURL_LDFLAGS})
+janus_append_ld_flags(${LIB_LIBCURL_LDFLAGS} "-lm") # link math library!
+
+set(JANUS_DEPENDENCY_LIBCURL_USED ON)

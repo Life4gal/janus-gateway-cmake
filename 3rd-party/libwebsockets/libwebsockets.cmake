@@ -12,6 +12,8 @@ function(try_use_websockets)
 	janus_append_compile_flags(${LIB_LIBWEBSCOKETS_CFLAGS})
 	janus_append_ld_flags(${LIB_LIBWEBSCOKETS_LDFLAGS})
 
+	set(JANUS_DEPENDENCY_LIBWEBSOCKETS_USED ON PARENT_SCOPE)
+
 	include(CheckLibraryExists)
 
 	CHECK_LIBRARY_EXISTS(

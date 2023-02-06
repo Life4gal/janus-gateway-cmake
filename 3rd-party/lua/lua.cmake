@@ -19,6 +19,8 @@ function(try_use_lua)
 	janus_append_include_directories(${LIB_LUA_INCLUDE_DIRS})
 	janus_append_compile_flags(${LIB_LUA_CFLAGS})
 	janus_append_ld_flags(${LIB_LUA_LDFLAGS})
+
+	set(JANUS_DEPENDENCY_LUA_USED ON PARENT_SCOPE)
 endfunction(try_use_lua)
 
 try_use_lua()
