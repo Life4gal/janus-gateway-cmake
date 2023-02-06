@@ -416,7 +416,7 @@ set(
 # EXECUTABLE
 
 # MAIN EXECUTABLE
-add_library(
+add_executable(
 		${PROJECT_NAME}
 
 		${JANUS_HEADER_FILES}
@@ -437,6 +437,10 @@ target_compile_definitions(
 		PRIVATE
 
 		${JANUS_COMPILE_DEFINITIONS}
+
+		# GNU extensions
+		# such as: strcasestr
+		_GNU_SOURCE
 
 		CONFDIR="${JANUS_INSTALL_CONFIG_DIR}"
 		PLUGINDIR="${JANUS_INSTALL_PLUGIN_DIR}"
