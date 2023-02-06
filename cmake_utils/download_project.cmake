@@ -121,12 +121,75 @@ function(download_project)
 	foreach (conf_file IN LISTS CONF_FILES)
 		file(RELATIVE_PATH relative_conf_file ${conf_file_path} ${conf_file})
 
-		copy_verbose_message("Copying file from [${conf_file}] to [${JANUS_CONF_FILES_PATH}/${relative_conf_file}]...")
-		configure_file(
-				${conf_file}
-				${JANUS_CONF_FILES_PATH}/${relative_conf_file}
-				COPYONLY
-		)
+		string(REGEX MATCH "^(.*).in$" file_is_in ${relative_conf_file})
+		if (file_is_in)
+			# message("0: [${CMAKE_MATCH_0}] | 1: [${CMAKE_MATCH_1}] | 2: [${CMAKE_MATCH_2}]")
+			set(real_conf_file ${CMAKE_MATCH_1})
+
+			# generate temp file for write
+			set(temp_file_path "${real_conf_file}.generated")
+			file(WRITE ${temp_file_path})
+
+			# read content
+			file(STRINGS ${conf_file} file_content)
+
+			# @*dir@ --> real path
+			foreach (line IN LISTS file_content)
+				string(REGEX MATCH "^[^@]*@([^@]*)@.*$" this_line_matched "${line}")
+				if (this_line_matched)
+					# message("0: [${CMAKE_MATCH_0}] | 1: [${CMAKE_MATCH_1}] | 2: [${CMAKE_MATCH_2}]")
+					set(this_line_placeholder ${CMAKE_MATCH_1})
+
+					if (${this_line_placeholder} MATCHES "confdir")
+						set(REAL_PATH ${JANUS_INSTALL_CONFIG_DIR})
+					elseif (${this_line_placeholder} MATCHES "demosdir")
+						set(REAL_PATH ${JANUS_INSTALL_DEMOS_DIR})
+					elseif (${this_line_placeholder} MATCHES "plugindir")
+						set(REAL_PATH ${JANUS_INSTALL_PLUGIN_DIR})
+					elseif (${this_line_placeholder} MATCHES "transportdir")
+						set(REAL_PATH ${JANUS_INSTALL_TRANSPORT_DIR})
+					elseif (${this_line_placeholder} MATCHES "eventdir")
+						set(REAL_PATH ${JANUS_INSTALL_EVENT_DIR})
+					elseif (${this_line_placeholder} MATCHES "loggerdir")
+						set(REAL_PATH ${JANUS_INSTALL_LOGGER_DIR})
+					elseif (${this_line_placeholder} MATCHES "streamdir")
+						set(REAL_PATH ${JANUS_INSTALL_STREAM_DIR})
+					elseif (${this_line_placeholder} MATCHES "recordingsdir")
+						set(REAL_PATH ${JANUS_INSTALL_RECORDING_DIR})
+					elseif (${this_line_placeholder} MATCHES "luadir")
+						set(REAL_PATH ${JANUS_INSTALL_LUA_DIR})
+					elseif (${this_line_placeholder} MATCHES "duktapedir")
+						set(REAL_PATH ${JANUS_INSTALL_DUKTAPE_DIR})
+					else ()
+						# remove folder for next generation.
+						file(REMOVE_RECURSE ${dest_folder})
+						message(FATAL_ERROR "FIXME: unknown placeholder --> [${this_line_placeholder}] at line [${line}] in file [${relative_conf_file}]")
+					endif (${this_line_placeholder} MATCHES "confdir")
+
+					string(REGEX REPLACE "^([^@]*)@([^@]*)@(.*)$" "\\1${REAL_PATH}\\3" out_line "${line}")
+
+					file(APPEND ${temp_file_path} "${out_line}\n")
+				else ()
+					# just append
+					file(APPEND ${temp_file_path} "${line}\n")
+				endif (this_line_matched)
+			endforeach (line IN LISTS file_content)
+
+			# copy real file
+			copy_verbose_message("Copying file from [${temp_file_path}] to [${JANUS_CONF_FILES_PATH}/${real_conf_file}]...")
+			configure_file(
+					${temp_file_path}
+					${JANUS_CONF_FILES_PATH}/${real_conf_file}
+					COPYONLY
+			)
+		else ()
+			copy_verbose_message("Copying file from [${conf_file}] to [${JANUS_CONF_FILES_PATH}/${relative_conf_file}]...")
+			configure_file(
+					${conf_file}
+					${JANUS_CONF_FILES_PATH}/${relative_conf_file}
+					COPYONLY
+			)
+		endif (file_is_in)
 	endforeach (conf_file IN LISTS CONF_FILES)
 endfunction(download_project)
 
