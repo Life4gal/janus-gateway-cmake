@@ -53,6 +53,9 @@ project(
 		LANGUAGES C
 )
 
+set(JANUS_EXE_MAIN_NAME ${PROJECT_NAME})
+set(JANUS_EXE_CFGCONV_NAME ${PROJECT_NAME}-cfgconv)
+
 if (${JANUS_MASTER_PROJECT})
 	message(STATUS "Our project [${PROJECT_NAME}] is the main-project. CMAKE VERSION: ${CMAKE_VERSION}. Compiler ID: ${CMAKE_CXX_COMPILER_ID}. Platform: ${CMAKE_SYSTEM_NAME}.")
 else ()
@@ -93,17 +96,31 @@ doc_var(
 		"will be joined with ${CMAKE_INSTALL_PREFIX} or an absolute path."
 )
 
+message("--> ${CMAKE_INSTALL_FULL_BINDIR}")
+message("--> ${CMAKE_INSTALL_FULL_LIBEXECDIR}")
+message("--> ${CMAKE_INSTALL_FULL_SYSCONFDIR}")
+message("--> ${CMAKE_INSTALL_FULL_LIBDIR}")
+message("--> ${CMAKE_INSTALL_FULL_INCLUDEDIR}")
+message("--> ${CMAKE_INSTALL_FULL_DATADIR}")
+message("--> ${CMAKE_INSTALL_FULL_DATADIR}")
+
 # TODO:
-set(JANUS_INSTALL_CONFIG_DIR ${CMAKE_INSTALL_SYSCONFDIR}/janus)
-set(JANUS_INSTALL_DEMOS_DIR ${CMAKE_INSTALL_DATADIR}/janus/demos)
-set(JANUS_INSTALL_PLUGIN_DIR ${CMAKE_INSTALL_LIBDIR}/janus/plugins)
-set(JANUS_INSTALL_TRANSPORT_DIR ${CMAKE_INSTALL_LIBDIR}/janus/transports)
-set(JANUS_INSTALL_EVENT_DIR ${CMAKE_INSTALL_LIBDIR}/janus/events)
-set(JANUS_INSTALL_LOGGER_DIR ${CMAKE_INSTALL_LIBDIR}/janus/loggers)
-set(JANUS_INSTALL_STREAM_DIR ${CMAKE_INSTALL_DATADIR}/janus/streams)
-set(JANUS_INSTALL_RECORDING_DIR ${CMAKE_INSTALL_DATADIR}/janus/recordings)
-set(JANUS_INSTALL_LUA_DIR ${CMAKE_INSTALL_DATADIR}/janus/lua)
-set(JANUS_INSTALL_DUKTAPE_DIR ${CMAKE_INSTALL_DATADIR}/janus/duktape)
+set(JANUS_INSTALL_CONFIG_DIR ${CMAKE_INSTALL_FULL_SYSCONFDIR}/janus)
+set(JANUS_INSTALL_DEMOS_DIR ${CMAKE_INSTALL_FULL_DATADIR}/janus/demos)
+set(JANUS_INSTALL_PLUGIN_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/janus/plugins)
+set(JANUS_INSTALL_TRANSPORT_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/janus/transports)
+set(JANUS_INSTALL_EVENT_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/janus/events)
+set(JANUS_INSTALL_LOGGER_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/janus/loggers)
+set(JANUS_INSTALL_STREAM_DIR ${CMAKE_INSTALL_FULL_DATADIR}/janus/streams)
+set(JANUS_INSTALL_RECORDING_DIR ${CMAKE_INSTALL_FULL_DATADIR}/janus/recordings)
+set(JANUS_INSTALL_LUA_DIR ${CMAKE_INSTALL_FULL_DATADIR}/janus/lua)
+set(JANUS_INSTALL_DUKTAPE_DIR ${CMAKE_INSTALL_FULL_DATADIR}/janus/duktape)
+
+set(JANUS_HEADER_FILES_PATH ${PROJECT_SOURCE_DIR}/include)
+
+set(JANUS_SOURCE_FILES_PATH ${PROJECT_SOURCE_DIR}/src)
+
+SET(JANUS_CONF_FILES_PATH ${PROJECT_SOURCE_DIR}/conf)
 
 # TODO: option only allows `TRUE`/`FALSE`, but not `maybe`
 #   If xxx is `OFF` and xxx_TRY_USE is `ON` then `target-library` will be attempted (skipped if not found).
@@ -201,7 +218,14 @@ if (JANUS_MASTER_PROJECT AND NOT DEFINED CMAKE_CXX_VISIBILITY_PRESET)
 	)
 endif ()
 
+include(${PROJECT_SOURCE_DIR}/cmake_utils/download_project.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake_utils/check_dependencies.cmake)
+# TODO: Originally, the project's source and header files were in the same directory, but we separated them and needed a way for the source files to find the header files correctly.
+#   1.Change back to the original way of putting source files and header files in the same directory.
+#   2.Modify `#include "xxx.h"` to `#include <xxx_category/xxx.h>`.
+# To reduce the workload, we should be able to 'automatically' change the desired file based on the 'option' used by the user.
+# note: Do it after we `check_dependencies`.
+include(${PROJECT_SOURCE_DIR}/cmake_utils/prepare_header_path.cmake)
 
 janus_append_compile_flags(
 		-fPIC
@@ -269,16 +293,6 @@ else ()
 	)
 endif (JANUS_PLATFORM_MACOS)
 
-set(
-		JANUS_HEADER_FILES_PATH
-		${PROJECT_SOURCE_DIR}/include
-)
-
-set(
-		JANUS_SOURCE_FILES_PATH
-		${PROJECT_SOURCE_DIR}/src
-)
-
 # generate version.c
 find_program(GIT_EXE NAMES git REQUIRED)
 find_program(DATE_EXE NAMES date REQUIRED)
@@ -334,14 +348,6 @@ file(
 		"const char *janus_version_string = \"${JANUS_VERSION}\";\n"
 		"const char *libnice_version_string = \"${pkgconfig_nice_version}\";\n"
 )
-
-include(${PROJECT_SOURCE_DIR}/cmake_utils/download_project.cmake)
-
-# TODO: Originally, the project's source and header files were in the same directory, but we separated them and needed a way for the source files to find the header files correctly.
-#   1.Change back to the original way of putting source files and header files in the same directory.
-#   2.Modify `#include "xxx.h"` to `#include <xxx_category/xxx.h>`.
-# To reduce the workload, we should be able to 'automatically' change the desired file based on the 'option' used by the user.
-include(${PROJECT_SOURCE_DIR}/cmake_utils/prepare_header_path.cmake)
 
 set(
 		JANUS_HEADER_FILES
@@ -413,6 +419,20 @@ set(
 		${JANUS_SOURCE_FILES_PATH}/turnrest.c
 )
 
+set(
+		JANUS_CFGCONV_HEADER_FILES
+)
+
+set(
+		JANUS_CFGCONV_SOURCE_FILES
+
+		${JANUS_SOURCE_FILES_PATH}/janus-cfgconv.c
+		${JANUS_SOURCE_FILES_PATH}/config.c
+		${JANUS_SOURCE_FILES_PATH}/log.c
+		${JANUS_SOURCE_FILES_PATH}/utils.c
+		${JANUS_SOURCE_FILES_PATH}/version.c
+)
+
 # EXECUTABLE
 
 # MAIN EXECUTABLE
@@ -421,6 +441,15 @@ add_executable(
 
 		${JANUS_HEADER_FILES}
 		${JANUS_SOURCE_FILES}
+		${JANUS_EXTRA_SOURCE_FILES}
+)
+
+# cfg conv
+add_executable(
+		${PROJECT_NAME}-cfgconv
+
+		${JANUS_CFGCONV_HEADER_FILES}
+		${JANUS_CFGCONV_SOURCE_FILES}
 )
 
 # SET FLAGS
@@ -442,11 +471,15 @@ target_compile_definitions(
 		# such as: strcasestr
 		_GNU_SOURCE
 
+		# clang-format off
+		# @formatter:off
 		CONFDIR="${JANUS_INSTALL_CONFIG_DIR}"
 		PLUGINDIR="${JANUS_INSTALL_PLUGIN_DIR}"
 		TRANSPORTDIR="${JANUS_INSTALL_TRANSPORT_DIR}"
 		EVENTDIR="${JANUS_INSTALL_EVENT_DIR}"
 		LOGGERDIR="${JANUS_INSTALL_LOGGER_DIR}"
+		# @formatter:on
+		# clang-format on
 )
 
 # SET INCLUDE DIRECTORY
