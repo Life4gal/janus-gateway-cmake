@@ -124,7 +124,7 @@ function(download_project)
 		copy_verbose_message("Copying file from [${conf_file}] to [${JANUS_CONF_FILES_PATH}/${relative_conf_file}]...")
 		configure_file(
 				${conf_file}
-				${JANUS_SOURCE_FILES_PATH}/${relative_conf_file}
+				${JANUS_CONF_FILES_PATH}/${relative_conf_file}
 				COPYONLY
 		)
 	endforeach (conf_file IN LISTS CONF_FILES)
