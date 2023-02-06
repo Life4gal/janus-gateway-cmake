@@ -46,14 +46,21 @@ function(download_project)
 		return()
 	endif (NOT EXISTS ${dest_folder})
 
-	# copy files
-	set(source_file_path ${dest_folder}/src)
-	message(STATUS "Copying files from ${source_file_path} to ${JANUS_HEADER_FILES_PATH}/${JANUS_SOURCE_FILES_PATH}...")
-
 	function(copy_verbose_message message)
 		# message(${message})
 		message(VERBOSE ${message})
 	endfunction(copy_verbose_message message)
+
+	# =============================================
+	# COPY
+	# =============================================
+
+	# =============================================
+	# HEADERS & SOURCES
+	# =============================================
+
+	set(source_file_path ${dest_folder}/src)
+	message(STATUS "Copying files from ${source_file_path} to ${JANUS_HEADER_FILES_PATH}/${JANUS_SOURCE_FILES_PATH}...")
 
 	file(
 			GLOB_RECURSE
@@ -94,6 +101,33 @@ function(download_project)
 				COPYONLY
 		)
 	endforeach (source_file IN LISTS SOURCE_FILES)
+
+	# =============================================
+	# CONFIGS
+	# =============================================
+
+	set(conf_file_path ${dest_folder}/conf)
+	message(STATUS "Copying files from ${conf_file_path} to ${JANUS_CONF_FILES_PATH}...")
+
+	file(
+			GLOB_RECURSE
+			CONF_FILES
+			CONFIGURE_DEPENDS
+
+			${conf_file_path}/*.*
+	)
+	copy_verbose_message("The config files to be copied: ${CONF_FILES}")
+
+	foreach (conf_file IN LISTS CONF_FILES)
+		file(RELATIVE_PATH relative_conf_file ${conf_file_path} ${conf_file})
+
+		copy_verbose_message("Copying file from [${conf_file}] to [${JANUS_CONF_FILES_PATH}/${relative_conf_file}]...")
+		configure_file(
+				${conf_file}
+				${JANUS_SOURCE_FILES_PATH}/${relative_conf_file}
+				COPYONLY
+		)
+	endforeach (conf_file IN LISTS CONF_FILES)
 endfunction(download_project)
 
 download_project()
