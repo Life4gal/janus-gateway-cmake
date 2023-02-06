@@ -93,6 +93,18 @@ doc_var(
 		"will be joined with ${CMAKE_INSTALL_PREFIX} or an absolute path."
 )
 
+# TODO:
+set(JANUS_INSTALL_CONFIG_DIR ${CMAKE_INSTALL_SYSCONFDIR}/janus)
+set(JANUS_INSTALL_DEMOS_DIR ${CMAKE_INSTALL_DATADIR}/janus/demos)
+set(JANUS_INSTALL_PLUGIN_DIR ${CMAKE_INSTALL_LIBDIR}/janus/plugins)
+set(JANUS_INSTALL_TRANSPORT_DIR ${CMAKE_INSTALL_LIBDIR}/janus/transports)
+set(JANUS_INSTALL_EVENT_DIR ${CMAKE_INSTALL_LIBDIR}/janus/events)
+set(JANUS_INSTALL_LOGGER_DIR ${CMAKE_INSTALL_LIBDIR}/janus/loggers)
+set(JANUS_INSTALL_STREAM_DIR ${CMAKE_INSTALL_DATADIR}/janus/streams)
+set(JANUS_INSTALL_RECORDING_DIR ${CMAKE_INSTALL_DATADIR}/janus/recordings)
+set(JANUS_INSTALL_LUA_DIR ${CMAKE_INSTALL_DATADIR}/janus/lua)
+set(JANUS_INSTALL_DUKTAPE_DIR ${CMAKE_INSTALL_DATADIR}/janus/duktape)
+
 # TODO: option only allows `TRUE`/`FALSE`, but not `maybe`
 #   If xxx is `OFF` and xxx_TRY_USE is `ON` then `target-library` will be attempted (skipped if not found).
 #   If xxx is `ON` and `target-library` cannot be found then compilation will stop.
@@ -323,7 +335,13 @@ file(
 		"const char *libnice_version_string = \"${pkgconfig_nice_version}\";\n"
 )
 
-include(${PROJECT_SOURCE_DIR}/cmake_utils/prepare_project.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake_utils/download_project.cmake)
+
+# TODO: Originally, the project's source and header files were in the same directory, but we separated them and needed a way for the source files to find the header files correctly.
+#   1.Change back to the original way of putting source files and header files in the same directory.
+#   2.Modify `#include "xxx.h"` to `#include <xxx_category/xxx.h>`.
+# To reduce the workload, we should be able to 'automatically' change the desired file based on the 'option' used by the user.
+include(${PROJECT_SOURCE_DIR}/cmake_utils/prepare_header_path.cmake)
 
 set(
 		JANUS_HEADER_FILES
@@ -419,6 +437,12 @@ target_compile_definitions(
 		PRIVATE
 
 		${JANUS_COMPILE_DEFINITIONS}
+
+		CONFDIR="${JANUS_INSTALL_CONFIG_DIR}"
+		PLUGINDIR="${JANUS_INSTALL_PLUGIN_DIR}"
+		TRANSPORTDIR="${JANUS_INSTALL_TRANSPORT_DIR}"
+		EVENTDIR="${JANUS_INSTALL_EVENT_DIR}"
+		LOGGERDIR="${JANUS_INSTALL_LOGGER_DIR}"
 )
 
 # SET INCLUDE DIRECTORY
