@@ -459,6 +459,14 @@ target_include_directories(
 		${JANUS_INCLUDE_DIRECTORIES}
 )
 
+# TODO: Find the reason about `JANUS_INCLUDE_DIRECTORIES` was accidentally cleared (and why some `set` operations did not add the directory to `JANUS_INCLUDE_DIRECTORIES` correctly).
+target_include_directories(
+		${PROJECT_NAME}
+		PRIVATE
+		/usr/include/glib-2.0
+		/usr/include/nice
+)
+
 # janus_print_all_dependencies_info()
 
 message(STATUS "=======================================")
