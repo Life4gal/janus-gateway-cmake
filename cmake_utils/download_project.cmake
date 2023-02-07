@@ -55,6 +55,9 @@ function(download_project)
 	# COPY
 	# =============================================
 
+	# TODO: How do we notify `prepare_header_path.cmake` to reprocess all files if a user deletes the folder and wants us to update all source files?
+	set(JANUS_PROJECT_FILES_RECOPY_FROM_SOURCE ON CACHE INTERNAL "Indicates that the current source file has been overwritten and that the necessary processing needs to be done again." FORCE)
+
 	# =============================================
 	# HEADERS & SOURCES
 	# =============================================
