@@ -10,6 +10,11 @@ function(prepare_header_path)
 			endif (NOT this_file_is_source_file)
 		endif (NOT this_file_is_header_file)
 
+		# TODO: It looks like the headers don't need to be replaced and can be skipped.
+		if (this_file_is_header_file)
+			return()
+		endif (this_file_is_header_file)
+
 		message("Replacing the path of the included header file in the file [${this_file_abs_path}], this may take a while...")
 
 		# 3.20^
