@@ -31,10 +31,13 @@ function(prepare_header_path)
 
 		set(this_file_cache_entry_name JANUS_HEADER_PATH_REPLACED_${folder_name}_${file_name})
 
-		# already cached?
-		if ($CACHE{${this_file_cache_entry_name}})
-			return()
-		endif ($CACHE{${this_file_cache_entry_name}})
+		# force process?
+		if (NOT DEFINED $CACHE{JANUS_PROJECT_FILES_RECOPY_FROM_SOURCE})
+			# already cached?
+			if ($CACHE{${this_file_cache_entry_name}})
+				return()
+			endif ($CACHE{${this_file_cache_entry_name}})
+		endif (NOT DEFINED $CACHE{JANUS_PROJECT_FILES_RECOPY_FROM_SOURCE})
 
 		string(LENGTH ${folder_name} folder_name_length)
 		if (${folder_name_length} EQUAL 0)
@@ -82,6 +85,30 @@ function(prepare_header_path)
 				continue()
 			endif (this_line_current_folder_matched)
 
+			# note: Multi-line macro definitions will be parsed incorrectly.
+			# such as:
+			# #define macro_name \
+			#   macro_definition_line_1 \
+			#   macro_definition_line_2 \
+			#   macro_definition_line_3 \
+			#   ...
+			# parsed as: #define macro_name ; macro_definition_line_1 ; macro_definition_line_2 ; macro_definition_line_3 ; ...
+			string(REGEX MATCH "^#define .*$" this_line_macro_definition_matched "${line}")
+			string(FIND "${line}" ";" this_line_macro_definition_multi_line_index)
+			if (this_line_macro_definition_matched AND NOT ${this_line_macro_definition_multi_line_index} EQUAL -1)
+				# note: NOT A LIST
+				#foreach (macro_line ${line})
+				#	message("macro_line --> ${macro_line}")
+				#endforeach (macro_line ${line})
+
+				# ';' --> '\' + '\n'
+				string(REPLACE ";" "\\\n" real_macro "${line}")
+
+				# append
+				file(APPEND ${temp_file_path} "${real_macro}\n")
+				continue()
+			endif (this_line_macro_definition_matched AND NOT ${this_line_macro_definition_multi_line_index} EQUAL -1)
+
 			# just append
 			file(APPEND ${temp_file_path} "${line}\n")
 		endforeach (line IN LISTS file_content)
@@ -114,3 +141,6 @@ function(prepare_header_path)
 endfunction(prepare_header_path)
 
 prepare_header_path()
+if ($CACHE{JANUS_PROJECT_FILES_RECOPY_FROM_SOURCE})
+	unset(JANUS_PROJECT_FILES_RECOPY_FROM_SOURCE CACHE)
+endif ($CACHE{JANUS_PROJECT_FILES_RECOPY_FROM_SOURCE})
