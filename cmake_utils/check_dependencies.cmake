@@ -3,7 +3,7 @@ include(${PROJECT_SOURCE_DIR}/cmake_utils/prepare_dependencies.cmake)
 find_package(PkgConfig REQUIRED)
 
 # LIB_GLIB AND LIB_GIO
-include(${JANUS_3RD_PARTY_PATH}/glib/glib.cmake)
+#include(${JANUS_3RD_PARTY_PATH}/glib/glib.cmake)
 include(${JANUS_3RD_PARTY_PATH}/glib/gio.cmake)
 
 # LIB_LIBCONFIG
