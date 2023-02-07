@@ -2,9 +2,18 @@ include(${PROJECT_SOURCE_DIR}/cmake_utils/prepare_dependencies.cmake)
 
 find_package(PkgConfig REQUIRED)
 
+# math
+janus_append_link_libraries("m")
+janus_append_ld_flags("-lm")
+
 # LIB_GLIB AND LIB_GIO
-#include(${JANUS_3RD_PARTY_PATH}/glib/glib.cmake)
 include(${JANUS_3RD_PARTY_PATH}/glib/gio.cmake)
+janus_append_link_libraries($CACHE{CACHE_GIO_LIBRARIES})
+janus_append_link_directories($CACHE{CACHE_GIO_DIRECTORIES})
+janus_append_link_libraries_name($CACHE{CACHE_GIO_LIBRARY_NAME})
+janus_append_include_directories($CACHE{CACHE_GIO_INCLUDE_DIRECTORIES})
+janus_append_compile_flags($CACHE{CACHE_GIO_COMPILE_FLAGS})
+janus_append_ld_flags($CACHE{CACHE_GIO_LD_FLAGS})
 
 # LIB_LIBCONFIG
 include(${JANUS_3RD_PARTY_PATH}/libconfig/libconfig.cmake)
@@ -49,6 +58,21 @@ janus_append_link_libraries_name(${CMAKE_DL_LIBS})
 
 # LIB_SRTP
 include(${JANUS_3RD_PARTY_PATH}/srtp/srtp.cmake)
+janus_append_link_libraries($CACHE{CACHE_SRTP_LIBRARIES})
+janus_append_link_directories($CACHE{CACHE_SRTP_DIRECTORIES})
+janus_append_link_libraries_name($CACHE{CACHE_SRTP_LIBRARY_NAME})
+janus_append_include_directories($CACHE{CACHE_SRTP_INCLUDE_DIRECTORIES})
+janus_append_compile_flags($CACHE{CACHE_SRTP_COMPILE_FLAGS})
+janus_append_ld_flags($CACHE{CACHE_SRTP_LD_FLAGS})
+
+# LIB_LIBCURL
+include(${JANUS_3RD_PARTY_PATH}/libcurl/libcurl.cmake)
+janus_append_link_libraries($CACHE{CACHE_LIBCURL_LIBRARIES})
+janus_append_link_directories($CACHE{CACHE_LIBCURL_DIRECTORIES})
+janus_append_link_libraries_name($CACHE{CACHE_LIBCURL_LIBRARY_NAME})
+janus_append_include_directories($CACHE{CACHE_LIBCURL_INCLUDE_DIRECTORIES})
+janus_append_compile_flags($CACHE{CACHE_LIBCURL_COMPILE_FLAGS})
+janus_append_ld_flags($CACHE{CACHE_LIBCURL_LD_FLAGS})
 
 # LIB_USRSCTP
 if (JANUS_DATA_CHANNELS)
@@ -57,13 +81,31 @@ endif (JANUS_DATA_CHANNELS)
 
 # LIB_LIBCURL
 if (JANUS_TURN_REST_API OR JANUS_HANDLER_SAMPLE)
-	set(JANUS_DEPENDENCY_LIBCURL_USED OFF)
-	include(${JANUS_3RD_PARTY_PATH}/libcurl/libcurl.cmake)
+	if (DEFINED CACHE{CACHE_LIBCURL})
+		set(janus_sampleevh_ld_flags $CACHE{CACHE_LIBCURL_LD_FLAGS} $CACHE{CACHE_GIO_LD_FLAGS} "-lm")
 
-	if (${JANUS_DEPENDENCY_LIBCURL_USED})
-		janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/events/janus_sampleevh.c)
-		janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.eventhandler.sampleevh.jcfg.sample)
-	endif (${JANUS_DEPENDENCY_LIBCURL_USED})
+		janus_append_extra_libraries(
+				# name
+				janus_sampleevh
+				# source
+				"${JANUS_SOURCE_FILES_PATH}/events/janus_sampleevh.c"
+				# dest_path
+				"${JANUS_INSTALL_EVENT_DIR}"
+				# config_path
+				"${JANUS_CONF_FILES_PATH}/janus.eventhandler.sampleevh.jcfg.sample"
+
+				# link_libraries
+				"$CACHE{CACHE_LIBCURL_LIBRARIES};$CACHE{CACHE_GIO_LIBRARIES}"
+				# link_directories
+				"$CACHE{CACHE_LIBCURL_DIRECTORIES};$CACHE{CACHE_GIO_DIRECTORIES}"
+				# include_directories
+				"$CACHE{CACHE_LIBCURL_INCLUDE_DIRECTORIES};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES}"
+				# compile_flags
+				"$CACHE{CACHE_LIBCURL_COMPILE_FLAGS};$CACHE{CACHE_GIO_COMPILE_FLAGS}"
+				# ld_flags
+				"${janus_sampleevh_ld_flags}"
+		)
+	endif (DEFINED CACHE{CACHE_LIBCURL})
 endif (JANUS_TURN_REST_API OR JANUS_HANDLER_SAMPLE)
 
 # DOXYGEN AND DOT
@@ -80,98 +122,308 @@ endif (JANUS_DOC)
 
 # LIB_LIBMICROHTTPD
 if (JANUS_TRANSPORT_REST OR JANUS_TRANSPORT_REST_TRY_USE)
-	set(JANUS_DEPENDENCY_LIBMICROHTTPD_USED OFF)
 	include(${JANUS_3RD_PARTY_PATH}/libmicrohttpd/libmicrohttpd.cmake)
 
-	if (${JANUS_DEPENDENCY_LIBMICROHTTPD_USED})
-		janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/transports/janus_http.c)
-		janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.transport.http.jcfg.sample)
-	endif (${JANUS_DEPENDENCY_LIBMICROHTTPD_USED})
+	if (DEFINED CACHE{CACHE_LIBMICROHTTPD})
+		janus_append_extra_libraries(
+				# name
+				libjanus_http
+				# source
+				"${JANUS_SOURCE_FILES_PATH}/transports/janus_http.c"
+				# dest_path
+				"${JANUS_INSTALL_TRANSPORT_DIR}"
+				# config_path
+				"${JANUS_CONF_FILES_PATH}/janus.transport.http.jcfg.sample"
+
+				# link_libraries
+				"$CACHE{CACHE_LIBMICROHTTPD_LIBRARIES};$CACHE{CACHE_GIO_LIBRARIES}"
+				# link_directories
+				"$CACHE{CACHE_LIBMICROHTTPD_DIRECTORIES};$CACHE{CACHE_GIO_DIRECTORIES}"
+				# include_directories
+				"$CACHE{CACHE_LIBMICROHTTPD_INCLUDE_DIRECTORIES};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES}"
+				# compile_flags
+				"$CACHE{CACHE_LIBMICROHTTPD_COMPILE_FLAGS};$CACHE{CACHE_GIO_COMPILE_FLAGS}"
+				# ld_flags
+				"$CACHE{CACHE_LIBMICROHTTPD_LD_FLAGS};$CACHE{CACHE_GIO_LD_FLAGS}"
+		)
+	endif (DEFINED CACHE{CACHE_LIBMICROHTTPD})
 endif (JANUS_TRANSPORT_REST OR JANUS_TRANSPORT_REST_TRY_USE)
 
 # LIB_LIBWEBSOCKETS
 if (JANUS_TRANSPORT_WEBSOCKETS OR JANUS_HANDLER_WEBSOCKETS)
-	set(JANUS_DEPENDENCY_LIBWEBSOCKETS_USED OFF)
 	include(${JANUS_3RD_PARTY_PATH}/libwebsockets/libwebsockets.cmake)
 
-	if (${JANUS_DEPENDENCY_LIBWEBSOCKETS_USED})
+	if (DEFINED CACHE{CACHE_LIBWEBSCOKETS})
 		if (JANUS_TRANSPORT_WEBSOCKETS)
-			janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/transports/janus_websockets.c)
-			janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.transport.websockets.jcfg.sample)
+			janus_append_extra_libraries(
+					# name
+					libjanus_websockets
+					# source
+					"${JANUS_SOURCE_FILES_PATH}/transports/janus_websockets.c"
+					# dest_path
+					"${JANUS_INSTALL_TRANSPORT_DIR}"
+					# config_path
+					"${JANUS_CONF_FILES_PATH}/janus.transport.websockets.jcfg.sample"
+
+					# link_libraries
+					"$CACHE{CACHE_LIBWEBSCOKETS_LIBRARIES}"
+					# link_directories
+					"$CACHE{CACHE_LIBWEBSCOKETS_DIRECTORIES}"
+					# include_directories
+					"$CACHE{CACHE_LIBWEBSCOKETS_INCLUDE_DIRECTORIES}"
+					# compile_flags
+					"$CACHE{CACHE_LIBWEBSCOKETS_COMPILE_FLAGS}"
+					# ld_flags
+					"$CACHE{CACHE_LIBWEBSCOKETS_LD_FLAGS}"
+			)
 		endif (JANUS_TRANSPORT_WEBSOCKETS)
 
 		if (JANUS_HANDLER_WEBSOCKETS)
-			janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/events/janus_wsevh.c)
-			janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.eventhandler.wsevh.jcfg.sample)
+			janus_append_extra_libraries(
+					# name
+					libjanus_wsevh
+					# source
+					"${JANUS_SOURCE_FILES_PATH}/events/janus_wsevh.c"
+					# dest_path
+					"${JANUS_INSTALL_EVENT_DIR}"
+					# config_path
+					"${JANUS_CONF_FILES_PATH}/janus.eventhandler.wsevh.jcfg.sample"
+
+					# link_libraries
+					"$CACHE{CACHE_LIBWEBSCOKETS_LIBRARIES}"
+					# link_directories
+					"$CACHE{CACHE_LIBWEBSCOKETS_DIRECTORIES}"
+					# include_directories
+					"$CACHE{CACHE_LIBWEBSCOKETS_INCLUDE_DIRECTORIES}"
+					# compile_flags
+					"$CACHE{CACHE_LIBWEBSCOKETS_COMPILE_FLAGS}"
+					# ld_flags
+					"$CACHE{CACHE_LIBWEBSCOKETS_LD_FLAGS}"
+			)
 		endif (JANUS_HANDLER_WEBSOCKETS)
-	endif (${JANUS_DEPENDENCY_LIBWEBSOCKETS_USED})
+	endif (DEFINED CACHE{CACHE_LIBWEBSCOKETS})
 endif (JANUS_TRANSPORT_WEBSOCKETS OR JANUS_HANDLER_WEBSOCKETS)
 
 # LIB_LIBRABBITMQ
 if (JANUS_TRANSPORT_RABBITMQ OR JANUS_HANDLER_RABBITMQ)
-	set(JANUS_DEPENDENCY_LIBRABBITMQ_USED OFF)
 	include(${JANUS_3RD_PARTY_PATH}/librabbitmq/librabbitmq.cmake)
 
-	if (${JANUS_DEPENDENCY_LIBRABBITMQ_USED})
+	if (DEFINED CACHE{CACHE_LIBRABBITMQ})
 		if (JANUS_TRANSPORT_RABBITMQ)
-			janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/transports/janus_rabbitmq.c)
-			janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.transport.rabbitmq.jcfg.sample)
+			janus_append_extra_libraries(
+					# name
+					libjanus_rabbitmq
+					# source
+					"${JANUS_SOURCE_FILES_PATH}/transports/janus_rabbitmq.c"
+					# dest_path
+					"${JANUS_INSTALL_TRANSPORT_DIR}"
+					# config_path
+					"${JANUS_CONF_FILES_PATH}/janus.transport.rabbitmq.jcfg.sample"
+
+					# link_libraries
+					"$CACHE{CACHE_LIBRABBITMQ_LIBRARIES}"
+					# link_directories
+					"$CACHE{CACHE_LIBRABBITMQ_DIRECTORIES}"
+					# include_directories
+					"$CACHE{CACHE_LIBRABBITMQ_INCLUDE_DIRECTORIES}"
+					# compile_flags
+					"$CACHE{CACHE_LIBRABBITMQ_COMPILE_FLAGS}"
+					# ld_flags
+					"$CACHE{CACHE_LIBRABBITMQ_LD_FLAGS}"
+			)
 		endif (JANUS_TRANSPORT_RABBITMQ)
 
 		if (JANUS_HANDLER_RABBITMQ)
-			janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/events/janus_rabbitmqevh.c)
-			janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.eventhandler.rabbitmqevh.jcfg.sample)
+			janus_append_extra_libraries(
+					# name
+					libjanus_rabbitmqevh
+					# source
+					"${JANUS_SOURCE_FILES_PATH}/events/janus_rabbitmqevh.c"
+					# dest_path
+					"${JANUS_INSTALL_EVENT_DIR}"
+					# config_path
+					"${JANUS_CONF_FILES_PATH}/janus.eventhandler.rabbitmqevh.jcfg.sample"
+
+					# link_libraries
+					"$CACHE{CACHE_LIBRABBITMQ_LIBRARIES}"
+					# link_directories
+					"$CACHE{CACHE_LIBRABBITMQ_DIRECTORIES}"
+					# include_directories
+					"$CACHE{CACHE_LIBRABBITMQ_INCLUDE_DIRECTORIES}"
+					# compile_flags
+					"$CACHE{CACHE_LIBRABBITMQ_COMPILE_FLAGS}"
+					# ld_flags
+					"$CACHE{CACHE_LIBRABBITMQ_LD_FLAGS}"
+			)
 		endif (JANUS_HANDLER_RABBITMQ)
-	endif (${JANUS_DEPENDENCY_LIBRABBITMQ_USED})
+	endif (DEFINED CACHE{CACHE_LIBRABBITMQ})
 endif (JANUS_TRANSPORT_RABBITMQ OR JANUS_HANDLER_RABBITMQ)
 
 # LIB_LIBPAHO-MQTT3AS
 if (JANUS_TRANSPORT_MQTT OR JANUS_HANDLER_MQTT)
-	set(JANUS_DEPENDENCY_LIBPAHO-MQTT3AS_USED OFF)
 	include(${JANUS_3RD_PARTY_PATH}/libpaho-mqtt3as/libpaho-mqtt3as.cmake)
 
-	if (${JANUS_DEPENDENCY_LIBPAHO-MQTT3AS_USED})
+	if (DEFINED CACHE{CACHE_LIBPAHO_MQTT3AS})
 		if (JANUS_TRANSPORT_MQTT)
-			janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/transports/janus_mqtt.c)
-			janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.transport.mqtt.jcfg.sample)
+			janus_append_extra_libraries(
+					# name
+					libjanus_mqtt
+					# source
+					"${JANUS_SOURCE_FILES_PATH}/transports/janus_mqtt.c"
+					# dest_path
+					"${JANUS_INSTALL_TRANSPORT_DIR}"
+					# config_path
+					"${JANUS_CONF_FILES_PATH}/janus.transport.mqtt.jcfg.sample"
+
+					# link_libraries
+					"$CACHE{CACHE_LIBPAHO_MQTT3AS_LIBRARIES}"
+					# link_directories
+					"$CACHE{CACHE_LIBPAHO_MQTT3AS_DIRECTORIES}"
+					# include_directories
+					"$CACHE{CACHE_LIBPAHO_MQTT3AS_INCLUDE_DIRECTORIES}"
+					# compile_flags
+					"$CACHE{CACHE_LIBPAHO_MQTT3AS_COMPILE_FLAGS}"
+					# ld_flags
+					"$CACHE{CACHE_LIBPAHO_MQTT3AS_LD_FLAGS}"
+			)
 		endif (JANUS_TRANSPORT_MQTT)
 
 		if (JANUS_HANDLER_MQTT)
-			janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/events/janus_mqttevh.c)
-			janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.eventhandler.mqttevh.jcfg.sample)
+			janus_append_extra_libraries(
+					# name
+					libjanus_mqttevh
+					# source
+					"${JANUS_SOURCE_FILES_PATH}/events/janus_mqttevh.c"
+					# dest_path
+					"${JANUS_INSTALL_EVENT_DIR}"
+					# config_path
+					"${JANUS_CONF_FILES_PATH}/janus.eventhandler.mqttevh.jcfg.sample"
+
+					# link_libraries
+					"$CACHE{CACHE_LIBPAHO_MQTT3AS_LIBRARIES}"
+					# link_directories
+					"$CACHE{CACHE_LIBPAHO_MQTT3AS_DIRECTORIES}"
+					# include_directories
+					"$CACHE{CACHE_LIBPAHO_MQTT3AS_INCLUDE_DIRECTORIES}"
+					# compile_flags
+					"$CACHE{CACHE_LIBPAHO_MQTT3AS_COMPILE_FLAGS}"
+					# ld_flags
+					"$CACHE{CACHE_LIBPAHO_MQTT3AS_LD_FLAGS}"
+			)
 		endif (JANUS_HANDLER_MQTT)
-	endif (${JANUS_DEPENDENCY_LIBPAHO-MQTT3AS_USED})
+	endif (DEFINED CACHE{CACHE_LIBPAHO_MQTT3AS})
 endif (JANUS_TRANSPORT_MQTT OR JANUS_HANDLER_MQTT)
 
 # LIB_NANOMSG
 if (JANUS_TRANSPORT_NANOMSG OR JANUS_HANDLER_NANOMSG)
-	set(JANUS_DEPENDENCY_NANOMSG_USED OFF)
 	include(${JANUS_3RD_PARTY_PATH}/nanomsg/nanomsg.cmake)
 
-	if (${JANUS_DEPENDENCY_NANOMSG_USED})
+	if (DEFINED CACHE{CACHE_NANOMSG})
 		if (JANUS_TRANSPORT_NANOMSG)
-			janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/transports/janus_nanomsg.c)
-			janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.transport.nanomsg.jcfg.sample)
+			janus_append_extra_libraries(
+					# name
+					libjanus_nanomsg
+					# source
+					"${JANUS_SOURCE_FILES_PATH}/transports/janus_nanomsg.c"
+					# dest_path
+					"${JANUS_INSTALL_TRANSPORT_DIR}"
+					# config_path
+					"${JANUS_CONF_FILES_PATH}/janus.transport.nanomsg.jcfg.sample"
+
+					# link_libraries
+					"$CACHE{CACHE_NANOMSG_LIBRARIES}"
+					# link_directories
+					"$CACHE{CACHE_NANOMSG_DIRECTORIES}"
+					# include_directories
+					"$CACHE{CACHE_NANOMSG_INCLUDE_DIRECTORIES}"
+					# compile_flags
+					"$CACHE{CACHE_NANOMSG_COMPILE_FLAGS}"
+					# ld_flags
+					"$CACHE{CACHE_NANOMSG_LD_FLAGS}"
+			)
 		endif (JANUS_TRANSPORT_NANOMSG)
 
 		if (JANUS_HANDLER_NANOMSG)
-			janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/events/janus_nanomsgevh.c)
-			janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.eventhandler.nanomsgevh.jcfg.sample)
+			janus_append_extra_libraries(
+					# name
+					libjanus_nanomsgevh
+					# source
+					"${JANUS_SOURCE_FILES_PATH}/events/janus_nanomsgevh.c"
+					# dest_path
+					"${JANUS_INSTALL_EVENT_DIR}"
+					# config_path
+					"${JANUS_CONF_FILES_PATH}/janus.eventhandler.nanomsgevh.jcfg.sample"
+
+					# link_libraries
+					"$CACHE{CACHE_NANOMSG_LIBRARIES}"
+					# link_directories
+					"$CACHE{CACHE_NANOMSG_DIRECTORIES}"
+					# include_directories
+					"$CACHE{CACHE_NANOMSG_INCLUDE_DIRECTORIES}"
+					# compile_flags
+					"$CACHE{CACHE_NANOMSG_COMPILE_FLAGS}"
+					# ld_flags
+					"$CACHE{CACHE_NANOMSG_LD_FLAGS}"
+			)
 		endif (JANUS_HANDLER_NANOMSG)
-	endif (${JANUS_DEPENDENCY_NANOMSG_USED})
+	endif (DEFINED CACHE{CACHE_NANOMSG})
 endif (JANUS_TRANSPORT_NANOMSG OR JANUS_HANDLER_NANOMSG)
 
 # GELF
 if (JANUS_HANDLER_GELF)
-	janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/events/janus_gelfevh.c)
-	janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.eventhandler.gelfevh.jcfg.sample)
+	janus_append_extra_libraries(
+			# name
+			libjanus_gelfevh
+			# source
+			"${JANUS_SOURCE_FILES_PATH}/events/janus_gelfevh.c"
+			# dest_path
+			"${JANUS_INSTALL_EVENT_DIR}"
+			# config_path
+			"${JANUS_CONF_FILES_PATH}/janus.eventhandler.gelfevh.jcfg.sample"
+
+			# link_libraries
+			""
+			# link_directories
+			""
+			# include_directories
+			""
+			# compile_flags
+			""
+			# ld_flags
+			""
+	)
 endif (JANUS_HANDLER_GELF)
 
 # JSON LOGGER
 if (JANUS_LOGGER_JSON)
-	janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/loggers/janus_jsonlog.c)
-	janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.logger.jsonlog.jcfg.sample)
+	janus_append_extra_libraries(
+			# name
+			libjanus_jsonlog
+			# source
+			"${JANUS_SOURCE_FILES_PATH}/events/janus_jsonlog.c"
+			# dest_path
+			"${JANUS_INSTALL_LOGGER_DIR}"
+			# config_path
+			"${JANUS_CONF_FILES_PATH}/janus.logger.jsonlog.jcfg.sample"
+
+			# link_libraries
+			""
+			# link_directories
+			""
+			# include_directories
+			""
+			# compile_flags
+			""
+			# ld_flags
+			""
+	)
 endif (JANUS_LOGGER_JSON)
+
+# LIB_LIBSYSTEMD
+if (JANUS_SYSTEMD_SOCKETS)
+	include(${JANUS_3RD_PARTY_PATH}/libsystemd/libsystemd.cmake)
+	janus_append_compile_definitions(HAVE_LIBSYSTEMD)
+endif (JANUS_SYSTEMD_SOCKETS)
 
 # JANUS_TRANSPORT_UNIX_SOCKETS
 function(janus_check_unix_sockets)
@@ -196,27 +448,59 @@ function(janus_check_unix_sockets)
 		else ()
 			janus_append_compile_definitions(HAVE_PFUNIX)
 
-			janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/transports/janus_pfunix.c)
-			janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.transport.pfunix.jcfg.sample)
+			janus_append_extra_libraries(
+					# name
+					libjanus_pfunix
+					# source
+					"${JANUS_SOURCE_FILES_PATH}/transports/janus_pfunix.c"
+					# dest_path
+					"${JANUS_INSTALL_TRANSPORT_DIR}"
+					# config_path
+					"${JANUS_CONF_FILES_PATH}/janus.transport.pfunix.jcfg.sample"
+
+					# link_libraries
+					"$CACHE{CACHE_LIBSYSTEMD_LIBRARIES}"
+					# link_directories
+					"$CACHE{CACHE_LIBSYSTEMD_DIRECTORIES}"
+					# include_directories
+					"$CACHE{CACHE_LIBSYSTEMD_INCLUDE_DIRECTORIES}"
+					# compile_flags
+					"$CACHE{CACHE_LIBSYSTEMD_COMPILE_FLAGS}"
+					# ld_flags
+					"$CACHE{CACHE_LIBSYSTEMD_LD_FLAGS}"
+			)
 		endif (NOT ${has_unix_sockets})
 	endif (JANUS_TRANSPORT_UNIX_SOCKETS)
 endfunction(janus_check_unix_sockets)
 janus_check_unix_sockets()
 
-# LIB_LIBSYSTEMD
-if (JANUS_SYSTEMD_SOCKETS)
-	include(${JANUS_3RD_PARTY_PATH}/libsystemd/libsystemd.cmake)
-endif (JANUS_SYSTEMD_SOCKETS)
-
 # LIB_OPUS
 if (JANUS_PLUGIN_AUDIO_BRIDGE OR JANUS_PLUGIN_AUDIO_BRIDGE_TRY_USE)
-	set(JANUS_DEPENDENCY_OPUS_USED OFF)
 	include(${JANUS_3RD_PARTY_PATH}/opus/opus.cmake)
 
-	if (${JANUS_DEPENDENCY_OPUS_USED})
-		janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/plugins/janus_audiobridge.c)
-		janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.plugin.audiobridge.jcfg.sample)
-	endif (${JANUS_DEPENDENCY_OPUS_USED})
+	if (DEFINED CACHE{CACHE_OPUS})
+		janus_append_extra_libraries(
+				# name
+				libjanus_audiobridge
+				# source
+				"${JANUS_SOURCE_FILES_PATH}/plugins/janus_audiobridge.c"
+				# dest_path
+				"${JANUS_INSTALL_PLUGIN_DIR}"
+				# config_path
+				"${JANUS_CONF_FILES_PATH}/janus.plugin.audiobridge.jcfg.sample"
+
+				# link_libraries
+				"$CACHE{CACHE_OPUS_LIBRARIES};$CACHE{CACHE_GIO_LIBRARIES};$CACHE{CACHE_SRTP_LIBRARIES}"
+				# link_directories
+				"$CACHE{CACHE_OPUS_DIRECTORIES};$CACHE{CACHE_GIO_DIRECTORIES};$CACHE{CACHE_SRTP_DIRECTORIES}"
+				# include_directories
+				"$CACHE{CACHE_OPUS_INCLUDE_DIRECTORIES};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES};$CACHE{CACHE_SRTP_INCLUDE_DIRECTORIES}"
+				# compile_flags
+				"$CACHE{CACHE_OPUS_COMPILE_FLAGS};$CACHE{CACHE_GIO_COMPILE_FLAGS};$CACHE{CACHE_SRTP_COMPILE_FLAGS}"
+				# ld_flags
+				"$CACHE{CACHE_OPUS_LD_FLAGS};$CACHE{CACHE_GIO_LD_FLAGS};$CACHE{CACHE_SRTP_LD_FLAGS}"
+		)
+	endif (DEFINED CACHE{CACHE_OPUS})
 endif (JANUS_PLUGIN_AUDIO_BRIDGE OR JANUS_PLUGIN_AUDIO_BRIDGE_TRY_USE)
 
 # LIB_DUKTAPE
@@ -239,77 +523,275 @@ if (JANUS_PLUGIN_DUKTAPE OR JANUS_PLUGIN_DUKTAPE_TRY_USE)
 endif (JANUS_PLUGIN_DUKTAPE OR JANUS_PLUGIN_DUKTAPE_TRY_USE)
 
 if (JANUS_PLUGIN_ECHO_TEST)
-	janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/plugins/janus_recordplay.c)
-	janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.plugin.recordplay.jcfg.sample)
+	janus_append_extra_libraries(
+			# name
+			libjanus_recordplay
+			# source
+			"${JANUS_SOURCE_FILES_PATH}/plugins/janus_recordplay.c"
+			# dest_path
+			"${JANUS_INSTALL_PLUGIN_DIR}"
+			# config_path
+			"${JANUS_CONF_FILES_PATH}/janus.plugin.recordplay.jcfg.sample"
+
+			# link_libraries
+			""
+			# link_directories
+			""
+			# include_directories
+			""
+			# compile_flags
+			""
+			# ld_flags
+			""
+	)
 endif (JANUS_PLUGIN_ECHO_TEST)
 
 # LIB_LUA
 if (JANUS_PLUGIN_LUA OR JANUS_PLUGIN_LUA_TRY_USE)
-	set(JANUS_DEPENDENCY_LUA_USED OFF)
 	include(${JANUS_3RD_PARTY_PATH}/lua/lua.cmake)
 
-	if (${JANUS_DEPENDENCY_LUA_USED})
-		janus_append_extra_source_file(
+	if (DEFINED CACHE{CACHE_LUA})
+		set(
+				libjanus_pfunix_source
 				${JANUS_SOURCE_FILES_PATH}/plugins/janus_lua.c
 				${JANUS_SOURCE_FILES_PATH}/plugins/janus_lua_extra.c
 
 				${JANUS_HEADER_FILES_PATH}/plugins/janus_lua_data.h
 				${JANUS_HEADER_FILES_PATH}/plugins/janus_lua_extra.h
 		)
-		janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.plugin.lua.jcfg.sample)
-	endif (${JANUS_DEPENDENCY_LUA_USED})
+		janus_append_extra_libraries(
+				# name
+				libjanus_pfunix
+				# source
+				"${libjanus_pfunix_source}"
+				# dest_path
+				"${JANUS_INSTALL_PLUGIN_DIR}"
+				# config_path
+				"${JANUS_CONF_FILES_PATH}/janus.plugin.lua.jcfg.sample"
+
+				# link_libraries
+				"$CACHE{CACHE_LUA_LIBRARIES};$CACHE{CACHE_GIO_LIBRARIES}"
+				# link_directories
+				"$CACHE{CACHE_LUA_DIRECTORIES};$CACHE{CACHE_GIO_DIRECTORIES}"
+				# include_directories
+				"$CACHE{CACHE_LUA_INCLUDE_DIRECTORIES};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES}"
+				# compile_flags
+				"$CACHE{CACHE_LUA_COMPILE_FLAGS};$CACHE{CACHE_GIO_COMPILE_FLAGS}"
+				# ld_flags
+				"$CACHE{CACHE_LUA_LD_FLAGS};$CACHE{CACHE_GIO_LD_FLAGS}"
+		)
+	endif (DEFINED CACHE{CACHE_LUA})
 endif (JANUS_PLUGIN_LUA OR JANUS_PLUGIN_LUA_TRY_USE)
 
 if (JANUS_PLUGIN_RECORD_PLAY)
-	janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/plugins/janus_echotest.c)
-	janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.plugin.echotest.jcfg.sample)
+	janus_append_extra_libraries(
+			# name
+			libjanus_echotest
+			# source
+			"${JANUS_SOURCE_FILES_PATH}/plugins/janus_echotest.c"
+			# dest_path
+			"${JANUS_INSTALL_PLUGIN_DIR}"
+			# config_path
+			"${JANUS_CONF_FILES_PATH}/janus.plugin.echotest.jcfg.sample"
+
+			# link_libraries
+			""
+			# link_directories
+			""
+			# include_directories
+			""
+			# compile_flags
+			""
+			# ld_flags
+			""
+	)
 endif (JANUS_PLUGIN_RECORD_PLAY)
 
 # LIB_SOFIA-SIP-UA
 if (JANUS_PLUGIN_SIP OR JANUS_PLUGIN_SIP_TRY_USE)
-	set(JANUS_DEPENDENCY_SOFIA-SIP-UA_USED OFF)
 	include(${JANUS_3RD_PARTY_PATH}/sofia-sip-ua/sofia-sip-ua.cmake)
 
-	if (${JANUS_DEPENDENCY_SOFIA-SIP-UA_USED})
-		janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/plugins/janus_sip.c)
-		janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.plugin.sip.jcfg.sample)
-	endif (${JANUS_DEPENDENCY_SOFIA-SIP-UA_USED})
+	if (DEFINED CACHE{CACHE_SOFIA_SIP_UA})
+		janus_append_extra_libraries(
+				# name
+				libjanus_sip
+				# source
+				"${JANUS_SOURCE_FILES_PATH}/plugins/janus_sip.c"
+				# dest_path
+				"${JANUS_INSTALL_PLUGIN_DIR}"
+				# config_path
+				"${JANUS_CONF_FILES_PATH}/janus.plugin.sip.jcfg.sample"
+
+				# link_libraries
+				"$CACHE{CACHE_SOFIA_SIP_UA_LIBRARIES};$CACHE{CACHE_SRTP_LIBRARIES};$CACHE{CACHE_GIO_LIBRARIES}"
+				# link_directories
+				"$CACHE{CACHE_SOFIA_SIP_UA_DIRECTORIES};$CACHE{CACHE_SRTP_DIRECTORIES};$CACHE{CACHE_GIO_DIRECTORIES}"
+				# include_directories
+				"$CACHE{CACHE_SOFIA_SIP_UA_INCLUDE_DIRECTORIES};$CACHE{CACHE_SRTP_INCLUDE_DIRECTORIES};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES}"
+				# compile_flags
+				"$CACHE{CACHE_SOFIA_SIP_UA_COMPILE_FLAGS};$CACHE{CACHE_SRTP_COMPILE_FLAGS};$CACHE{CACHE_GIO_COMPILE_FLAGS}"
+				# ld_flags
+				"$CACHE{CACHE_SOFIA_SIP_UA_LD_FLAGS};$CACHE{CACHE_SRTP_LD_FLAGS};$CACHE{CACHE_GIO_LD_FLAGS}"
+		)
+	endif (DEFINED CACHE{CACHE_SOFIA_SIP_UA})
 endif (JANUS_PLUGIN_SIP OR JANUS_PLUGIN_SIP_TRY_USE)
 
 if (JANUS_PLUGIN_NO_SIP)
-	janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/plugins/janus_nosip.c)
-	janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.plugin.nosip.jcfg.sample)
+	janus_append_extra_libraries(
+			# name
+			libjanus_nosip
+			# source
+			"${JANUS_SOURCE_FILES_PATH}/plugins/janus_nosip.c"
+			# dest_path
+			"${JANUS_INSTALL_PLUGIN_DIR}"
+			# config_path
+			"${JANUS_CONF_FILES_PATH}/janus.plugin.nosip.jcfg.sample"
+
+			# link_libraries
+			"$CACHE{CACHE_SRTP_LIBRARIES}"
+			# link_directories
+			"$CACHE{CACHE_SRTP_DIRECTORIES}"
+			# include_directories
+			"$CACHE{CACHE_SRTP_INCLUDE_DIRECTORIES}"
+			# compile_flags
+			"$CACHE{CACHE_SRTP_COMPILE_FLAGS}"
+			# ld_flags
+			"$CACHE{CACHE_SRTP_LD_FLAGS}"
+	)
 endif (JANUS_PLUGIN_NO_SIP)
 
 if (JANUS_PLUGIN_STREAMING)
-	janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/plugins/janus_streaming.c)
-	janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.plugin.streaming.jcfg.sample)
+	if (NOT DEFINED CACHE{CACHE_LIBCURL})
+		include(${JANUS_3RD_PARTY_PATH}/libcurl/libcurl.cmake)
+	endif (NOT DEFINED CACHE{CACHE_LIBCURL})
+	if (NOT DEFINED CACHE{CACHE_OGG})
+		include(${JANUS_3RD_PARTY_PATH}/ogg/ogg.cmake)
+	endif (NOT DEFINED CACHE{CACHE_OGG})
+
+	janus_append_extra_libraries(
+			# name
+			libjanus_streaming
+			# source
+			"${JANUS_SOURCE_FILES_PATH}/plugins/janus_streaming.c"
+			# dest_path
+			"${JANUS_INSTALL_PLUGIN_DIR}"
+			# config_path
+			"${JANUS_CONF_FILES_PATH}/janus.plugin.streaming.jcfg.sample"
+
+			# link_libraries
+			"$CACHE{CACHE_LIBCURL_LIBRARIES};$CACHE{CACHE_OGG_LIBRARIES};$CACHE{CACHE_SRTP_LIBRARIES}"
+			# link_directories
+			"$CACHE{CACHE_LIBCURL_DIRECTORIES};$CACHE{CACHE_OGG_DIRECTORIES};$CACHE{CACHE_SRTP_DIRECTORIES}"
+			# include_directories
+			"$CACHE{CACHE_LIBCURL_INCLUDE_DIRECTORIES};$CACHE{CACHE_OGG_INCLUDE_DIRECTORIES};$CACHE{CACHE_SRTP_INCLUDE_DIRECTORIES}"
+			# compile_flags
+			"$CACHE{CACHE_LIBCURL_COMPILE_FLAGS};$CACHE{CACHE_OGG_COMPILE_FLAGS};$CACHE{CACHE_SRTP_COMPILE_FLAGS}"
+			# ld_flags
+			"$CACHE{CACHE_LIBCURL_LD_FLAGS};$CACHE{CACHE_OGG_LD_FLAGS};$CACHE{CACHE_SRTP_LD_FLAGS}"
+	)
 endif (JANUS_PLUGIN_STREAMING)
 
 if (JANUS_PLUGIN_TEXT_ROOM)
-	janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/plugins/janus_textroom.c)
-	janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.plugin.textroom.jcfg.sample)
+	janus_append_extra_libraries(
+			# name
+			libjanus_textroom
+			# source
+			"${JANUS_SOURCE_FILES_PATH}/plugins/janus_textroom.c"
+			# dest_path
+			"${JANUS_INSTALL_PLUGIN_DIR}"
+			# config_path
+			"${JANUS_CONF_FILES_PATH}/janus.plugin.textroom.jcfg.sample"
+
+			# link_libraries
+			""
+			# link_directories
+			""
+			# include_directories
+			""
+			# compile_flags
+			""
+			# ld_flags
+			""
+	)
 endif (JANUS_PLUGIN_TEXT_ROOM)
 
 if (JANUS_PLUGIN_VIDEO_CALL)
-	janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/plugins/janus_videocall.c)
-	janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.plugin.videocall.jcfg.sample)
+	janus_append_extra_libraries(
+			# name
+			libjanus_videocall
+			# source
+			"${JANUS_SOURCE_FILES_PATH}/plugins/janus_videocall.c"
+			# dest_path
+			"${JANUS_INSTALL_PLUGIN_DIR}"
+			# config_path
+			"${JANUS_CONF_FILES_PATH}/janus.plugin.videocall.jcfg.sample"
+
+			# link_libraries
+			""
+			# link_directories
+			""
+			# include_directories
+			""
+			# compile_flags
+			""
+			# ld_flags
+			""
+	)
 endif (JANUS_PLUGIN_VIDEO_CALL)
 
 if (JANUS_PLUGIN_VIDEO_ROOM)
-	janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/plugins/janus_videoroom.c)
-	janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.plugin.videoroom.jcfg.sample)
+	janus_append_extra_libraries(
+			# name
+			libjanus_videoroom
+			# source
+			"${JANUS_SOURCE_FILES_PATH}/plugins/janus_videoroom.c"
+			# dest_path
+			"${JANUS_INSTALL_PLUGIN_DIR}"
+			# config_path
+			"${JANUS_CONF_FILES_PATH}/janus.plugin.videoroom.jcfg.sample"
+
+			# link_libraries
+			"$CACHE{CACHE_SRTP_LIBRARIES}"
+			# link_directories
+			"$CACHE{CACHE_SRTP_DIRECTORIES}"
+			# include_directories
+			"$CACHE{CACHE_SRTP_INCLUDE_DIRECTORIES}"
+			# compile_flags
+			"$CACHE{CACHE_SRTP_COMPILE_FLAGS}"
+			# ld_flags
+			"$CACHE{CACHE_SRTP_LD_FLAGS}"
+	)
 endif (JANUS_PLUGIN_VIDEO_ROOM)
 
 # LIB_OGG
 if (JANUS_PLUGIN_VOICE_MAIL OR JANUS_PLUGIN_VOICE_MAIL_TRY_USE)
-	set(JANUS_DEPENDENCY_OGG_USED OFF)
-	include(${JANUS_3RD_PARTY_PATH}/ogg/ogg.cmake)
+	if (NOT DEFINED CACHE{CACHE_OGG})
+		include(${JANUS_3RD_PARTY_PATH}/ogg/ogg.cmake)
+	endif (NOT DEFINED CACHE{CACHE_OGG})
 
-	if (${JANUS_DEPENDENCY_OGG_USED})
-		janus_append_extra_source_file(${JANUS_SOURCE_FILES_PATH}/plugins/janus_voicemail.c)
-		janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.plugin.voicemail.jcfg.sample)
-	endif (${JANUS_DEPENDENCY_OGG_USED})
+	if (DEFINED CACHE{CACHE_OGG})
+		janus_append_extra_libraries(
+				# name
+				libjanus_voicemail
+				# source
+				"${JANUS_SOURCE_FILES_PATH}/plugins/janus_voicemail.c"
+				# dest_path
+				"${JANUS_INSTALL_PLUGIN_DIR}"
+				# config_path
+				"${JANUS_CONF_FILES_PATH}/janus.plugin.voicemail.jcfg.sample"
+
+				# link_libraries
+				"$CACHE{CACHE_OGG_LIBRARIES};$CACHE{CACHE_GIO_LIBRARIES}"
+				# link_directories
+				"$CACHE{CACHE_OGG_DIRECTORIES};$CACHE{CACHE_GIO_DIRECTORIES}"
+				# include_directories
+				"$CACHE{CACHE_OGG_INCLUDE_DIRECTORIES};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES}"
+				# compile_flags
+				"$CACHE{CACHE_OGG_COMPILE_FLAGS};$CACHE{CACHE_GIO_COMPILE_FLAGS}"
+				# ld_flags
+				"$CACHE{CACHE_OGG_LD_FLAGS};$CACHE{CACHE_GIO_LD_FLAGS}"
+		)
+	endif (DEFINED CACHE{CACHE_OGG})
 endif (JANUS_PLUGIN_VOICE_MAIL OR JANUS_PLUGIN_VOICE_MAIL_TRY_USE)
 
 # JS MODULE
@@ -325,7 +807,6 @@ endif (JANUS_JS_MODULE_ES OR JANUS_JS_MODULE_UMD OR JANUS_JS_MODULE_IIFE OR JANU
 
 # Post-processing
 if (JANUS_POST_PROCESSING)
-	# include(${JANUS_3RD_PARTY_PATH}/glib/glib.cmake)
 	# include(${JANUS_3RD_PARTY_PATH}/jansson/jansson.cmake)
 	# include(${JANUS_3RD_PARTY_PATH}/libssl/libssl.cmake)
 	# include(${JANUS_3RD_PARTY_PATH}/libcrypto/libcrypto.cmake)
