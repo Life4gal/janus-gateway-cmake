@@ -1,15 +1,19 @@
 if (JANUS_LIBSRTP2)
 	# libsrtp2
 	pkg_check_modules(LIB_SRTP QUIET REQUIRED libsrtp2)
-	janus_append_compile_definitions(HAVE_SRTP_2)
 else ()
 	# libsrtp 1.5.x
 	pkg_check_modules(LIB_SRTP QUIET REQUIRED libsrtp>=1.5)
 endif (JANUS_LIBSRTP2)
 
-janus_append_link_libraries(${LIB_SRTP_LIBRARIES})
-janus_append_link_directories(${LIB_SRTP_LIBRARY_DIRS})
-janus_append_link_libraries_name(${LIB_SRTP_LIBRARIES}-${LIB_SRTP_VERSION})
-janus_append_include_directories(${LIB_SRTP_INCLUDE_DIRS})
-janus_append_compile_flags(${LIB_SRTP_CFLAGS})
-janus_append_ld_flags(${LIB_SRTP_LDFLAGS})
+set(CACHE_SRTP "libsrtp" CACHE INTERNAL "libsrtp." FORCE)
+set(CACHE_SRTP_LIBRARIES ${LIB_SRTP_LIBRARIES} CACHE INTERNAL "libsrtp." FORCE)
+set(CACHE_SRTP_DIRECTORIES ${LIB_SRTP_LIBRARY_DIRS} CACHE INTERNAL "libsrtp." FORCE)
+set(CACHE_SRTP_LIBRARY_NAME ${LIB_SRTP_LIBRARIES}-${LIB_SRTP_VERSION} CACHE INTERNAL "libsrtp." FORCE)
+set(CACHE_SRTP_INCLUDE_DIRECTORIES ${LIB_SRTP_INCLUDE_DIRS} CACHE INTERNAL "libsrtp." FORCE)
+set(CACHE_SRTP_COMPILE_FLAGS ${LIB_SRTP_CFLAGS} CACHE INTERNAL "libsrtp." FORCE)
+set(CACHE_SRTP_LD_FLAGS ${LIB_SRTP_LDFLAGS} CACHE INTERNAL "libsrtp." FORCE)
+
+if (JANUS_LIBSRTP2)
+	set(CACHE_SRTP_COMPILE_FLAGS ${CACHE_SRTP_COMPILE_FLAGS} "-DHAVE_SRTP_2" CACHE INTERNAL "libsrtp." FORCE)
+endif (JANUS_LIBSRTP2)
