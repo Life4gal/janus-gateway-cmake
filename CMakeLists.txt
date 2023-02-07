@@ -96,15 +96,16 @@ doc_var(
 		"will be joined with ${CMAKE_INSTALL_PREFIX} or an absolute path."
 )
 
-message("--> ${CMAKE_INSTALL_FULL_BINDIR}")
-message("--> ${CMAKE_INSTALL_FULL_LIBEXECDIR}")
-message("--> ${CMAKE_INSTALL_FULL_SYSCONFDIR}")
-message("--> ${CMAKE_INSTALL_FULL_LIBDIR}")
-message("--> ${CMAKE_INSTALL_FULL_INCLUDEDIR}")
-message("--> ${CMAKE_INSTALL_FULL_DATADIR}")
-message("--> ${CMAKE_INSTALL_FULL_DATADIR}")
+#message("--> ${CMAKE_INSTALL_FULL_BINDIR}")
+#message("--> ${CMAKE_INSTALL_FULL_LIBEXECDIR}")
+#message("--> ${CMAKE_INSTALL_FULL_SYSCONFDIR}")
+#message("--> ${CMAKE_INSTALL_FULL_LIBDIR}")
+#message("--> ${CMAKE_INSTALL_FULL_INCLUDEDIR}")
+#message("--> ${CMAKE_INSTALL_FULL_DATADIR}")
+#message("--> ${CMAKE_INSTALL_FULL_DATADIR}")
 
 # TODO:
+set(JANUS_INSTALL_BIN_DIR ${CMAKE_INSTALL_FULL_BINDIR}/janus/bin)
 set(JANUS_INSTALL_CONFIG_DIR ${CMAKE_INSTALL_FULL_SYSCONFDIR}/janus)
 set(JANUS_INSTALL_DEMOS_DIR ${CMAKE_INSTALL_FULL_DATADIR}/janus/demos)
 set(JANUS_INSTALL_PLUGIN_DIR ${CMAKE_INSTALL_FULL_LIBDIR}/janus/plugins)
@@ -195,9 +196,9 @@ option(JANUS_POST_PROCESSING "Enable building post-processing utility" OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+#set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+#set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 # Macros about the compiler.
 set(JANUS_COMPILER_ID ${CMAKE_C_COMPILER_ID})
@@ -216,7 +217,23 @@ if (JANUS_MASTER_PROJECT AND NOT DEFINED CMAKE_CXX_VISIBILITY_PRESET)
 			PROPERTY STRINGS
 			hidden default
 	)
-endif ()
+endif (JANUS_MASTER_PROJECT AND NOT DEFINED CMAKE_CXX_VISIBILITY_PRESET)
+
+# The only purpose of this library is to act as a top-level dependency for extra libraries,
+# so that as long as our main program depends on this library,
+# the extra libraries are guaranteed to be compiled with the main program.
+# (No need for the user to compile it manually)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/nothing_here_and_nobody_care)
+file(WRITE ${CMAKE_BINARY_DIR}/nothing_here_and_nobody_care/janus_dummy_lib_do_not_build_it.c)
+add_library(
+		janus_dummy_lib_do_not_build_it
+		${JANUS_SOURCE_FILES_PATH}/janus_dummy_lib_do_not_build_it.c
+)
+set_target_properties(
+		janus_dummy_lib_do_not_build_it
+		PROPERTIES
+		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/nothing_here_and_nobody_care
+)
 
 include(${PROJECT_SOURCE_DIR}/cmake_utils/download_project.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake_utils/check_dependencies.cmake)
@@ -443,6 +460,15 @@ add_executable(
 		${JANUS_SOURCE_FILES}
 		${JANUS_EXTRA_SOURCE_FILES}
 )
+add_dependencies(
+		${PROJECT_NAME}
+		janus_dummy_lib_do_not_build_it
+)
+set_target_properties(
+		${PROJECT_NAME}
+		PROPERTIES
+		LIBRARY_OUTPUT_DIRECTORY ${JANUS_INSTALL_BIN_DIR}
+)
 
 # cfg conv
 add_executable(
@@ -450,6 +476,15 @@ add_executable(
 
 		${JANUS_CFGCONV_HEADER_FILES}
 		${JANUS_CFGCONV_SOURCE_FILES}
+)
+add_dependencies(
+		${PROJECT_NAME}-cfgconv
+		janus_dummy_lib_do_not_build_it
+)
+set_target_properties(
+		${PROJECT_NAME}-cfgconv
+		PROPERTIES
+		LIBRARY_OUTPUT_DIRECTORY ${JANUS_INSTALL_BIN_DIR}
 )
 
 # SET FLAGS
@@ -520,15 +555,7 @@ target_include_directories(
 		${JANUS_INCLUDE_DIRECTORIES}
 )
 
-# TODO: Find the reason about `JANUS_INCLUDE_DIRECTORIES` was accidentally cleared (and why some `set` operations did not add the directory to `JANUS_INCLUDE_DIRECTORIES` correctly).
-target_include_directories(
-		${PROJECT_NAME}
-		PRIVATE
-		/usr/include/glib-2.0
-		/usr/include/nice
-)
-
-# janus_print_all_dependencies_info()
+#janus_print_all_dependencies_info()
 
 message(STATUS "=======================================")
 message(STATUS "[${PROJECT_NAME}] DEPENDENCIES:")
@@ -536,16 +563,6 @@ foreach (library IN LISTS JANUS_LINK_LIBRARIES_NAME)
 	message(STATUS "-->\t\t ${library}")
 endforeach (library IN LISTS JANUS_LINK_LIBRARIES_NAME)
 message(STATUS "=======================================")
-
-# SET DEBUG POSTFIX ==> lib${PROJECT_NAME} -> Release lib${PROJECT}d -> Debug
-set(JANUS_DEBUG_POSTFIX d CACHE STRING "Debug library postfix.")
-set_target_properties(
-		${PROJECT_NAME}
-		PROPERTIES
-		VERSION ${JANUS_VERSION}
-		SOVERSION ${JANUS_MAJOR_VERSION}
-		PUBLIC_HEADER "${JANUS_HEADER_FILES}"
-		DEBUG_POSTFIX "${JANUS_DEBUG_POSTFIX}")
 
 # DOCUMENTS
 if (JANUS_DOC)
