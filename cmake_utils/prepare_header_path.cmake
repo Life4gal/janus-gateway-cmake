@@ -32,12 +32,12 @@ function(prepare_header_path)
 		set(this_file_cache_entry_name JANUS_HEADER_PATH_REPLACED_${folder_name}_${file_name})
 
 		# force process?
-		if (NOT DEFINED $CACHE{JANUS_PROJECT_FILES_RECOPY_FROM_SOURCE})
+		if (NOT DEFINED CACHE{JANUS_PROJECT_FILES_RECOPY_FROM_SOURCE})
 			# already cached?
 			if ($CACHE{${this_file_cache_entry_name}})
 				return()
 			endif ($CACHE{${this_file_cache_entry_name}})
-		endif (NOT DEFINED $CACHE{JANUS_PROJECT_FILES_RECOPY_FROM_SOURCE})
+		endif (NOT DEFINED CACHE{JANUS_PROJECT_FILES_RECOPY_FROM_SOURCE})
 
 		string(LENGTH ${folder_name} folder_name_length)
 		if (${folder_name_length} EQUAL 0)
@@ -138,6 +138,13 @@ function(prepare_header_path)
 	foreach (file IN LISTS JANUS_EXTRA_SOURCE_FILES)
 		do_replace(${file})
 	endforeach (file IN LISTS JANUS_EXTRA_SOURCE_FILES)
+
+	# =============================
+	# Extra libraries source files
+	# =============================
+	foreach (file IN LISTS JANUS_EXTRA_LIBRARIES_SOURCE_FILES)
+		do_replace(${file})
+	endforeach (file IN LISTS JANUS_EXTRA_LIBRARIES_SOURCE_FILES)
 endfunction(prepare_header_path)
 
 prepare_header_path()
