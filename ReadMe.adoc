@@ -4,21 +4,65 @@ Life4gal <Life4gal@gmail.com>
 :icons: font
 
 == Introduction
-`janus`, but use `cmake` to manage the project.
+link:https://github.com/meetecho/janus-gateway[`janus`], but use `cmake` to manage the project.
 
 This repository doesn't pretend to be more `modern` than `makefile`,
 but there are many great `IDE`(s) that have far stronger support for `cmake` than for `makefile`.
 
 This repository tries to make it possible for people who are not so familiar with `makefile` to get started with `janus` more quickly. (Of course, they need some familiarity with `cmake`) :)
 
+// copy from https://github.com/meetecho/janus-gateway vvv :)
+Janus is an open source, general purpose, WebRTC server designed and developed by [Meetecho](https://www.meetecho.com). This version of the server is tailored for Linux systems, although it can be compiled for, and installed on, MacOS machines as well. Windows is not supported, but if that's a requirement, Janus is known to work in the "Windows Subsystem for Linux" on Windows 10: do **NOT** trust repos that provide .exe builds of Janus, they are not official and will not be supported.
+
+For some online demos and documentations, make sure you pay the [project website](https://janus.conf.meetecho.com/) a visit!
+
+> **Note well:** this is the main branch for the `multistream` version of Janus, which is the new version. If you want to check the legacy version of Janus instead (i.e., `0.x`, a.k.a. "legacy") click [here](https://github.com/meetecho/janus-gateway/tree/0.x) instead.
+
+If you have questions on Janus, or wish to discuss Janus with us and other users, please join our [meetecho-janus](https://groups.google.com/forum/#!forum/meetecho-janus) Google Group. If you encounter bugs, please submit an issue on [GitHub](https://github.com/meetecho/janus-gateway/issues): make sure you read the [guidelines](.github/CONTRIBUTING.md) before opening an issue or a pull request, though.
+
 == Features
 
 todo
 
-
 == Requirements
 
 Same requirements as `janus`, just follow the instructions in the official `janus` repository to install it.
+
+// copy from https://github.com/meetecho/janus-gateway vvv :)
+To install it, you'll need to satisfy the following dependencies:
+
+* [Jansson](http://www.digip.org/jansson/)
+* [libconfig](https://hyperrealm.github.io/libconfig/)
+* [libnice](https://libnice.freedesktop.org/) (at least v0.1.16 suggested, v0.1.18 recommended)
+* [OpenSSL](http://www.openssl.org/) (at least v1.0.1e)
+* [libsrtp](https://github.com/cisco/libsrtp) (at least v2.x suggested)
+* [usrsctp](https://github.com/sctplab/usrsctp) (only needed if you are interested in Data Channels)
+* [libmicrohttpd](http://www.gnu.org/software/libmicrohttpd/) (at least v0.9.59; only needed if you are interested in REST support for the Janus API)
+* [libwebsockets](https://libwebsockets.org/) (only needed if you are interested in WebSockets support for the Janus API)
+* [cmake](http://www.cmake.org/) (only needed if you are interested in WebSockets and/or BoringSSL support, as they make use of it)
+* [rabbitmq-c](https://github.com/alanxz/rabbitmq-c) (only needed if you are interested in RabbitMQ support for the Janus API or events)
+* [paho.mqtt.c](https://eclipse.org/paho/clients/c) (only needed if you are interested in MQTT support for the Janus API or events)
+* [nanomsg](https://nanomsg.org/) (only needed if you are interested in Nanomsg support for the Janus API)
+* [libcurl](https://curl.haxx.se/libcurl/) (only needed if you are interested in the TURN REST API support)
+
+A couple of plugins depend on a few more libraries:
+
+* [Sofia-SIP](https://github.com/freeswitch/sofia-sip) (only needed for the SIP plugin)
+* [libopus](http://opus-codec.org/) (only needed for the AudioBridge plugin)
+* [libogg](http://xiph.org/ogg/) (needed for the VoiceMail plugin and/or post-processor, and optionally AudioBridge and Streaming plugins)
+* [libcurl](https://curl.haxx.se/libcurl/) (only needed if you are interested in RTSP support in the Streaming plugin or in the sample Event Handler plugin)
+* [Lua](https://www.lua.org/download.html) (only needed for the Lua plugin)
+* [Duktape](https://duktape.org/) (only needed for the Duktape plugin)
+
+Additionally, you'll need the following libraries and tools:
+
+* [GLib](http://library.gnome.org/devel/glib/)
+* [zlib](https://zlib.net/)
+* [pkg-config](http://www.freedesktop.org/wiki/Software/pkg-config/)
+
+== Install
+
+todo
 
 == License
 see link:LICENSE[License].
