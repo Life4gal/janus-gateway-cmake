@@ -366,6 +366,10 @@ file(
 		"const char *libnice_version_string = \"${pkgconfig_nice_version}\";\n"
 )
 
+# =================================================
+# MAIN
+# =================================================
+
 set(
 		JANUS_HEADER_FILES
 
@@ -436,23 +440,7 @@ set(
 		${JANUS_SOURCE_FILES_PATH}/turnrest.c
 )
 
-set(
-		JANUS_CFGCONV_HEADER_FILES
-)
-
-set(
-		JANUS_CFGCONV_SOURCE_FILES
-
-		${JANUS_SOURCE_FILES_PATH}/janus-cfgconv.c
-		${JANUS_SOURCE_FILES_PATH}/config.c
-		${JANUS_SOURCE_FILES_PATH}/log.c
-		${JANUS_SOURCE_FILES_PATH}/utils.c
-		${JANUS_SOURCE_FILES_PATH}/version.c
-)
-
 # EXECUTABLE
-
-# MAIN EXECUTABLE
 add_executable(
 		${PROJECT_NAME}
 
@@ -466,23 +454,6 @@ add_dependencies(
 )
 set_target_properties(
 		${PROJECT_NAME}
-		PROPERTIES
-		LIBRARY_OUTPUT_DIRECTORY ${JANUS_INSTALL_BIN_DIR}
-)
-
-# cfg conv
-add_executable(
-		${PROJECT_NAME}-cfgconv
-
-		${JANUS_CFGCONV_HEADER_FILES}
-		${JANUS_CFGCONV_SOURCE_FILES}
-)
-add_dependencies(
-		${PROJECT_NAME}-cfgconv
-		janus_dummy_lib_do_not_build_it
-)
-set_target_properties(
-		${PROJECT_NAME}-cfgconv
 		PROPERTIES
 		LIBRARY_OUTPUT_DIRECTORY ${JANUS_INSTALL_BIN_DIR}
 )
@@ -526,6 +497,7 @@ target_include_directories(
 		$<INSTALL_INTERFACE:${JANUS_INSTALL_HEADERS}/${PROJECT_NAME}-${PROJECT_VERSION}>
 )
 
+# LINK OPTIONS
 target_link_options(
 		${PROJECT_NAME}
 		PRIVATE
@@ -563,6 +535,116 @@ foreach (library IN LISTS JANUS_LINK_LIBRARIES_NAME)
 	message(STATUS "-->\t\t ${library}")
 endforeach (library IN LISTS JANUS_LINK_LIBRARIES_NAME)
 message(STATUS "=======================================")
+
+# =================================================
+# cfg-conv
+# =================================================
+
+set(
+		JANUS_CFGCONV_HEADER_FILES
+)
+
+set(
+		JANUS_CFGCONV_SOURCE_FILES
+
+		${JANUS_SOURCE_FILES_PATH}/janus-cfgconv.c
+		${JANUS_SOURCE_FILES_PATH}/config.c
+		${JANUS_SOURCE_FILES_PATH}/log.c
+		${JANUS_SOURCE_FILES_PATH}/utils.c
+		${JANUS_SOURCE_FILES_PATH}/version.c
+)
+
+# EXECUTABLE
+add_executable(
+		${PROJECT_NAME}-cfgconv
+
+		${JANUS_CFGCONV_HEADER_FILES}
+		${JANUS_CFGCONV_SOURCE_FILES}
+)
+add_dependencies(
+		${PROJECT_NAME}-cfgconv
+		janus_dummy_lib_do_not_build_it
+)
+set_target_properties(
+		${PROJECT_NAME}-cfgconv
+		PROPERTIES
+		LIBRARY_OUTPUT_DIRECTORY ${JANUS_INSTALL_BIN_DIR}
+)
+
+# SET FLAGS
+target_compile_options(
+		${PROJECT_NAME}-cfgconv
+		PRIVATE
+
+		"$CACHE{CACHE_GIO_COMPILE_FLAGS}"
+		"$CACHE{CACHE_LIBCONFIG_COMPILE_FLAGS}"
+		"$CACHE{CACHE_JANSSON_COMPILE_FLAGS}"
+		"$CACHE{CACHE_SSL_COMPILE_FLAGS}"
+		"$CACHE{CACHE_ZLIB_COMPILE_FLAGS}"
+)
+
+# SET DEFINITIONS
+target_compile_definitions(
+		${PROJECT_NAME}-cfgconv
+		PRIVATE
+
+		""
+)
+
+# SET INCLUDE DIRECTORY
+target_include_directories(
+		${PROJECT_NAME}-cfgconv
+		PUBLIC
+
+		$<BUILD_INTERFACE:${JANUS_HEADER_FILES_PATH}>
+		$<INSTALL_INTERFACE:${JANUS_INSTALL_HEADERS}/${PROJECT_NAME}-${PROJECT_VERSION}>
+)
+
+# LINK OPTIONS
+target_link_options(
+		${PROJECT_NAME}-cfgconv
+		PRIVATE
+
+		"$CACHE{CACHE_GIO_LD_FLAGS}"
+		"$CACHE{CACHE_LIBCONFIG_LD_FLAGS}"
+		"$CACHE{CACHE_JANSSON_LD_FLAGS}"
+		"$CACHE{CACHE_SSL_LD_FLAGS}"
+		"$CACHE{CACHE_ZLIB_LD_FLAGS}"
+)
+
+# LINK 3rd-PARTY LIBRARIES
+target_link_directories(
+		${PROJECT_NAME}-cfgconv
+		PRIVATE
+
+		"$CACHE{CACHE_GIO_DIRECTORIES}"
+		"$CACHE{CACHE_LIBCONFIG_DIRECTORIES}"
+		"$CACHE{CACHE_JANSSON_DIRECTORIES}"
+		"$CACHE{CACHE_SSL_DIRECTORIES}"
+		"$CACHE{CACHE_ZLIB_DIRECTORIES}"
+)
+
+target_link_libraries(
+		${PROJECT_NAME}-cfgconv
+		PRIVATE
+
+		"$CACHE{CACHE_GIO_LIBRARIES}"
+		"$CACHE{CACHE_LIBCONFIG_LIBRARIES}"
+		"$CACHE{CACHE_JANSSON_LIBRARIES}"
+		"$CACHE{CACHE_SSL_LIBRARIES}"
+		"$CACHE{CACHE_ZLIB_LIBRARIES}"
+)
+
+target_include_directories(
+		${PROJECT_NAME}-cfgconv
+		PRIVATE
+
+		"$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES}"
+		"$CACHE{CACHELIBCONFIG_INCLUDE_DIRECTORIES}"
+		"$CACHE{CACHE_JANSSON_INCLUDE_DIRECTORIES}"
+		"$CACHE{CACHE_SSL_INCLUDE_DIRECTORIES}"
+		"$CACHE{CACHE_ZLIB_INCLUDE_DIRECTORIES}"
+)
 
 # DOCUMENTS
 if (JANUS_DOC)

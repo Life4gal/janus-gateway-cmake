@@ -17,30 +17,72 @@ janus_append_ld_flags($CACHE{CACHE_GIO_LD_FLAGS})
 
 # LIB_LIBCONFIG
 include(${JANUS_3RD_PARTY_PATH}/libconfig/libconfig.cmake)
+janus_append_link_libraries($CACHE{CACHE_LIBCONFIG_LIBRARIES})
+janus_append_link_directories($CACHE{CACHE_LIBCONFIG_DIRECTORIES})
+janus_append_link_libraries_name($CACHE{CACHE_LIBCONFIG_LIBRARY_NAME})
+janus_append_include_directories($CACHE{CACHE_LIBCONFIG_INCLUDE_DIRECTORIES})
+janus_append_compile_flags($CACHE{CACHE_LIBCONFIG_COMPILE_FLAGS})
+janus_append_ld_flags($CACHE{CACHE_LIBCONFIG_LD_FLAGS})
 
 # LIB_NICE
 include(${JANUS_3RD_PARTY_PATH}/nice/nice.cmake)
 
 # LIB_JANSSON
 include(${JANUS_3RD_PARTY_PATH}/jansson/jansson.cmake)
+janus_append_link_libraries($CACHE{CACHE_JANSSON_LIBRARIES})
+janus_append_link_directories($CACHE{CACHE_JANSSON_DIRECTORIES})
+janus_append_link_libraries_name($CACHE{CACHE_JANSSON_LIBRARY_NAME})
+janus_append_include_directories($CACHE{CACHE_JANSSON_INCLUDE_DIRECTORIES})
+janus_append_compile_flags($CACHE{CACHE_JANSSON_COMPILE_FLAGS})
+janus_append_ld_flags($CACHE{CACHE_JANSSON_LD_FLAGS})
 
 # LIB_ZLIB
 include(${JANUS_3RD_PARTY_PATH}/zlib/zlib.cmake)
+janus_append_link_libraries($CACHE{CACHE_ZLIB_LIBRARIES})
+janus_append_link_directories($CACHE{CACHE_ZLIB_DIRECTORIES})
+janus_append_link_libraries_name($CACHE{CACHE_ZLIB_LIBRARY_NAME})
+janus_append_include_directories($CACHE{CACHE_ZLIB_INCLUDE_DIRECTORIES})
+janus_append_compile_flags($CACHE{CACHE_ZLIB_COMPILE_FLAGS})
+janus_append_ld_flags($CACHE{CACHE_ZLIB_LD_FLAGS})
 
-if (NOT JANUS_PLATFORM_IS_BSD)
-	# LIB_LIBSSL
-	include(${JANUS_3RD_PARTY_PATH}/libssl/libssl.cmake)
-	# LIB_LIBCRYPTO
-	include(${JANUS_3RD_PARTY_PATH}/libcrypto/libcrypto.cmake)
-endif ()
+# TODO
+#if (NOT JANUS_PLATFORM_IS_BSD)
+#	# LIB_LIBSSL
+#	include(${JANUS_3RD_PARTY_PATH}/libssl/libssl.cmake)
+#	# LIB_LIBCRYPTO
+#	include(${JANUS_3RD_PARTY_PATH}/libcrypto/libcrypto.cmake)
+#endif (NOT JANUS_PLATFORM_IS_BSD)
 
+# TODO: variable name?
 # LIB_OPENSSL OR LIB_BORINGSSL
 if (JANUS_BORINGSSL)
 	message(STATUS "Trying to use BoringSSL instead of OpenSSL...")
 	include(${JANUS_3RD_PARTY_PATH}/boringssl/boringssl.cmake)
+
+	set(CACHE_SSL $CACHE{CACHE_BORINGSSL} CACHE INTERNAL "ssl." FORCE)
+	set(CACHE_SSL_LIBRARIES $CACHE{CACHE_BORINGSSL_LIBRARIES} CACHE INTERNAL "ssl." FORCE)
+	set(CACHE_SSL_DIRECTORIES $CACHE{CACHE_BORINGSSL_DIRECTORIES} CACHE INTERNAL "ssl." FORCE)
+	set(CACHE_SSL_LIBRARY_NAME $CACHE{CACHE_BORINGSSL_LIBRARY_NAME} CACHE INTERNAL "ssl." FORCE)
+	set(CACHE_SSL_INCLUDE_DIRECTORIES $CACHE{CACHE_BORINGSSL_INCLUDE_DIRECTORIES} CACHE INTERNAL "ssl." FORCE)
+	set(CACHE_SSL_COMPILE_FLAGS $CACHE{CACHE_BORINGSSL_COMPILE_FLAGS} CACHE INTERNAL "ssl." FORCE)
+	set(CACHE_SSL_LD_FLAGS $CACHE{CACHE_BORINGSSL_LD_FLAGS} CACHE INTERNAL "ssl." FORCE)
 else ()
 	include(${JANUS_3RD_PARTY_PATH}/openssl/openssl.cmake)
+
+	set(CACHE_SSL $CACHE{CACHE_OPENSSL} CACHE INTERNAL "ssl." FORCE)
+	set(CACHE_SSL_LIBRARIES $CACHE{CACHE_OPENSSL_LIBRARIES} CACHE INTERNAL "ssl." FORCE)
+	set(CACHE_SSL_DIRECTORIES $CACHE{CACHE_OPENSSL_DIRECTORIES} CACHE INTERNAL "ssl." FORCE)
+	set(CACHE_SSL_LIBRARY_NAME $CACHE{CACHE_OPENSSL_LIBRARY_NAME} CACHE INTERNAL "ssl." FORCE)
+	set(CACHE_SSL_INCLUDE_DIRECTORIES $CACHE{CACHE_OPENSSL_INCLUDE_DIRECTORIES} CACHE INTERNAL "ssl." FORCE)
+	set(CACHE_SSL_COMPILE_FLAGS $CACHE{CACHE_OPENSSL_COMPILE_FLAGS} CACHE INTERNAL "ssl." FORCE)
+	set(CACHE_SSL_LD_FLAGS $CACHE{CACHE_OPENSSL_LD_FLAGS} CACHE INTERNAL "ssl." FORCE)
 endif (JANUS_BORINGSSL)
+janus_append_link_libraries($CACHE{CACHE_SSL_LIBRARIES})
+janus_append_link_directories($CACHE{CACHE_SSL_DIRECTORIES})
+janus_append_link_libraries_name($CACHE{CACHE_SSL_LIBRARY_NAME})
+janus_append_include_directories($CACHE{CACHE_SSL_INCLUDE_DIRECTORIES})
+janus_append_compile_flags($CACHE{CACHE_SSL_COMPILE_FLAGS})
+janus_append_ld_flags($CACHE{CACHE_SSL_LD_FLAGS})
 
 if (JANUS_DTLS_SET_TIMEOUT)
 	message(STATUS "Assuming DTLSv1_set_initial_timeout_duration is available")
