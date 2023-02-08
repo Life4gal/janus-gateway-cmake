@@ -28,7 +28,7 @@ jobs:
         uses: seanmiddleditch/gha-setup-ninja@v3
 
       - name: Install dependencies
-        run: sudo apt install libglib2.0-dev libssl-dev libconfig-dev libjansson-dev libnice-dev libsrtp2-dev libmicrohttpd-dev libsofia-sip-ua-dev libopus-dev libogg-dev libcurl4-openssl-dev libwebsockets-dev libusrsctp-dev -y
+        run: sudo apt install libglib2.0-dev libssl-dev libconfig-dev libjansson-dev libnice-dev libsrtp2-dev libmicrohttpd-dev libsofia-sip-ua-dev libopus-dev libogg-dev libcurl4-openssl-dev libwebsockets-dev libusrsctp-dev liblua5.4-dev -y
 
       - name: Create Build Environment
         run: cmake -E make_directory out/build/linux-x64-${{matrix.build_type}}-${{matrix.toolset}}/
