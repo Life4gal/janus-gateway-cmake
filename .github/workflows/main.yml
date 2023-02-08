@@ -10,7 +10,6 @@ on:
 
 env:
   CTEST_OUTPUT_ON_FAILURE: 1
-  CPM_SOURCE_CACHE: ${{ github.workspace }}/cpm_modules
 
 jobs:
   linux:
@@ -27,6 +26,9 @@ jobs:
 
       - name: Install ninja-build tool
         uses: seanmiddleditch/gha-setup-ninja@v3
+
+      - name: Install dependencies
+        run: sudo apt install libglib2.0-dev libssl-dev libconfig-dev libjansson-dev libnice-dev libsrtp2-dev libmicrohttpd-dev libsofia-sip-ua-dev libopus-dev libogg-dev libcurl4-openssl-dev libwebsockets-dev libusrsctp-dev -y
 
       - name: Create Build Environment
         run: cmake -E make_directory out/build/linux-x64-${{matrix.build_type}}-${{matrix.toolset}}/
