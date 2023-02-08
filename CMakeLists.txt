@@ -227,7 +227,7 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/nothing_here_and_nobody_care)
 file(WRITE ${CMAKE_BINARY_DIR}/nothing_here_and_nobody_care/janus_dummy_lib_do_not_build_it.c)
 add_library(
 		janus_dummy_lib_do_not_build_it
-		${JANUS_SOURCE_FILES_PATH}/janus_dummy_lib_do_not_build_it.c
+		${CMAKE_BINARY_DIR}/nothing_here_and_nobody_care/janus_dummy_lib_do_not_build_it.c
 )
 set_target_properties(
 		janus_dummy_lib_do_not_build_it
