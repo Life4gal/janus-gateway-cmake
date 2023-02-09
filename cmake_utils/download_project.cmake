@@ -59,7 +59,7 @@ function(download_project)
 	set(JANUS_PROJECT_FILES_RECOPY_FROM_SOURCE ON CACHE INTERNAL "Indicates that the current source file has been overwritten and that the necessary processing needs to be done again." FORCE)
 
 	# =============================================
-	# HEADERS & SOURCES
+	# HEADERS & SOURCES & PLUGINS
 	# =============================================
 
 	set(source_file_path ${dest_folder}/src)
@@ -83,15 +83,15 @@ function(download_project)
 	)
 	copy_verbose_message("The source files to be copied: ${SOURCE_FILES}")
 
-	# misc files
+	# plugin data files
 	file(
 			GLOB_RECURSE
-			MISC_FILES
+			PLUGIN_DATA_FILES
 			CONFIGURE_DEPENDS
 
-			${source_file_path}/*.*
+			${source_file_path}/plugins/*.*
 	)
-	list(FILTER MISC_FILES EXCLUDE REGEX "^.*[.][^hc]$")
+	list(FILTER PLUGIN_DATA_FILES EXCLUDE REGEX "^.*[.][h|c]$")
 
 	foreach (header_file IN LISTS HEADER_FILES)
 		file(RELATIVE_PATH relative_header_file ${source_file_path} ${header_file})
@@ -115,16 +115,16 @@ function(download_project)
 		)
 	endforeach (source_file IN LISTS SOURCE_FILES)
 
-	foreach (misc_file IN LISTS MISC_FILES)
-		file(RELATIVE_PATH relative_misc_file ${source_file_path} ${misc_file})
+	foreach (plugin_data_file IN LISTS PLUGIN_DATA_FILES)
+		file(RELATIVE_PATH relative_plugin_data_file ${source_file_path} ${plugin_data_file})
 
-		copy_verbose_message("Copying file from [${misc_file}] to [${JANUS_SOURCE_FILES_PATH}/${relative_misc_file}]...")
+		copy_verbose_message("Copying file from [${plugin_data_file}] to [${JANUS_SOURCE_FILES_PATH}/${relative_plugin_data_file}]...")
 		configure_file(
-				${misc_file}
-				${JANUS_SOURCE_FILES_PATH}/${relative_misc_file}
+				${plugin_data_file}
+				${JANUS_SOURCE_FILES_PATH}/${relative_plugin_data_file}
 				COPYONLY
 		)
-	endforeach (misc_file IN LISTS MISC_FILES)
+	endforeach (plugin_data_file IN LISTS PLUGIN_DATA_FILES)
 
 	# =============================================
 	# CONFIGS
@@ -251,6 +251,33 @@ function(download_project)
 			)
 		endif (file_is_in)
 	endforeach (conf_file IN LISTS CONF_FILES)
+
+	# =============================================
+	# DEMO
+	# =============================================
+
+	set(html_file_path ${dest_folder}/html)
+	message(STATUS "Copying files from ${html_file_path} to ${JANUS_INSTALL_DEMOS_DIR}...")
+
+	# demo files
+	file(
+			GLOB_RECURSE
+			DEMO_FILES
+			CONFIGURE_DEPENDS
+
+			${html_file_path}/*.*
+	)
+	foreach (demo_file IN LISTS DEMO_FILES)
+		file(RELATIVE_PATH relative_demo_file ${html_file_path} ${demo_file})
+
+		copy_verbose_message("Copying file from [${demo_file}] to [${JANUS_INSTALL_DEMOS_DIR}/${relative_demo_file}]...")
+		configure_file(
+				${demo_file}
+				${JANUS_INSTALL_DEMOS_DIR}/${relative_demo_file}
+				COPYONLY
+		)
+	endforeach (demo_file IN LISTS DEMO_FILES)
+
 endfunction(download_project)
 
 download_project()
