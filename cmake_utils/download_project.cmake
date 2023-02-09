@@ -151,7 +151,7 @@ function(download_project)
 			set(real_conf_file ${CMAKE_MATCH_1})
 
 			# generate temp file for write
-			set(temp_file_path "${real_conf_file}.generated")
+			set(temp_file_path "${conf_file_path}/${real_conf_file}.generated")
 			file(WRITE ${temp_file_path})
 
 			# read content
@@ -199,10 +199,17 @@ function(download_project)
 				endif (this_line_matched)
 			endforeach (line IN LISTS file_content)
 
+			# replace original file
+			# note: Here we need to replace the original configuration file,
+			#   and then use configure_file to make it establish dependencies,
+			#   so that once the original configuration file changes,
+			#   the copied past configuration file will also change accordingly.
+			file(RENAME ${temp_file_path} ${conf_file})
+
 			# copy real file
-			copy_verbose_message("Copying file from [${temp_file_path}] to [${JANUS_CONF_FILES_PATH}/${real_conf_file}]...")
+			copy_verbose_message("Copying file from [${conf_file}] to [${JANUS_CONF_FILES_PATH}/${real_conf_file}]...")
 			configure_file(
-					${temp_file_path}
+					${conf_file}
 					${JANUS_CONF_FILES_PATH}/${real_conf_file}
 					COPYONLY
 			)
