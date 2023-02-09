@@ -473,6 +473,8 @@ endif (JANUS_SYSTEMD_SOCKETS)
 # JANUS_TRANSPORT_UNIX_SOCKETS
 function(janus_check_unix_sockets)
 	if (JANUS_TRANSPORT_UNIX_SOCKETS)
+		include(CheckCSourceCompiles)
+
 		check_c_source_compiles(
 				"
 			#include <stdlib.h>
@@ -504,15 +506,15 @@ function(janus_check_unix_sockets)
 					"${JANUS_CONF_FILES_PATH}/janus.transport.pfunix.jcfg.sample"
 
 					# link_libraries
-					"$CACHE{CACHE_LIBSYSTEMD_LIBRARIES}"
+					"$CACHE{CACHE_LIBSYSTEMD_LIBRARIES};$CACHE{CACHE_GIO_LIBRARIES}"
 					# link_directories
-					"$CACHE{CACHE_LIBSYSTEMD_DIRECTORIES}"
+					"$CACHE{CACHE_LIBSYSTEMD_DIRECTORIES};$CACHE{CACHE_GIO_DIRECTORIES}"
 					# include_directories
-					"$CACHE{CACHE_LIBSYSTEMD_INCLUDE_DIRECTORIES}"
+					"$CACHE{CACHE_LIBSYSTEMD_INCLUDE_DIRECTORIES};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES}"
 					# compile_flags
-					"$CACHE{CACHE_LIBSYSTEMD_COMPILE_FLAGS}"
+					"$CACHE{CACHE_LIBSYSTEMD_COMPILE_FLAGS};$CACHE{CACHE_GIO_COMPILE_FLAGS}"
 					# ld_flags
-					"$CACHE{CACHE_LIBSYSTEMD_LD_FLAGS}"
+					"$CACHE{CACHE_LIBSYSTEMD_LD_FLAGS};$CACHE{CACHE_GIO_LD_FLAGS}"
 			)
 		endif (NOT ${has_unix_sockets})
 	endif (JANUS_TRANSPORT_UNIX_SOCKETS)
