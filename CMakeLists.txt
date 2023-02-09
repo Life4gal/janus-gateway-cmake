@@ -232,7 +232,7 @@ add_library(
 set_target_properties(
 		janus_dummy_lib_do_not_build_it
 		PROPERTIES
-		LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/nothing_here_and_nobody_care
+		ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/nothing_here_and_nobody_care
 )
 
 include(${PROJECT_SOURCE_DIR}/cmake_utils/download_project.cmake)
@@ -455,7 +455,7 @@ add_dependencies(
 set_target_properties(
 		${PROJECT_NAME}
 		PROPERTIES
-		LIBRARY_OUTPUT_DIRECTORY ${JANUS_INSTALL_BIN_DIR}
+		RUNTIME_OUTPUT_DIRECTORY ${JANUS_INSTALL_BIN_DIR}
 )
 
 # SET FLAGS
@@ -568,7 +568,7 @@ add_dependencies(
 set_target_properties(
 		${PROJECT_NAME}-cfgconv
 		PROPERTIES
-		LIBRARY_OUTPUT_DIRECTORY ${JANUS_INSTALL_BIN_DIR}
+		RUNTIME_OUTPUT_DIRECTORY ${JANUS_INSTALL_BIN_DIR}
 )
 
 # SET FLAGS
