@@ -150,6 +150,35 @@ function(download_project)
 			# message("0: [${CMAKE_MATCH_0}] | 1: [${CMAKE_MATCH_1}] | 2: [${CMAKE_MATCH_2}]")
 			set(real_conf_file ${CMAKE_MATCH_1})
 
+			# TODO: The file `janus.jcfg.sample.in` does not seem to be read correctly. Line `"[\x1b[32mjanus\x1b[0m] " would show a green "janus"` and everything after it is treated as the same line.
+			if (${real_conf_file} MATCHES "janus.jcfg.sample")
+				# Consider the entire file content as a string.
+				file(STRINGS ${conf_file} file_content NEWLINE_CONSUME)
+
+				string(REPLACE "@confdir@" "${JANUS_INSTALL_CONFIG_DIR}" file_content "${file_content}")
+				string(REPLACE "@demosdir@" "${JANUS_INSTALL_DEMOS_DIR}" file_content "${file_content}")
+				string(REPLACE "@plugindir@" "${JANUS_INSTALL_PLUGIN_DIR}" file_content "${file_content}")
+				string(REPLACE "@transportdir@" "${JANUS_INSTALL_TRANSPORT_DIR}" file_content "${file_content}")
+				string(REPLACE "@eventdir@" "${JANUS_INSTALL_EVENT_DIR}" file_content "${file_content}")
+				string(REPLACE "@loggerdir@" "${JANUS_INSTALL_LOGGER_DIR}" file_content "${file_content}")
+				string(REPLACE "@streamdir@" "${JANUS_INSTALL_STREAM_DIR}" file_content "${file_content}")
+				string(REPLACE "@recordingsdir@" "${JANUS_INSTALL_RECORDING_DIR}" file_content "${file_content}")
+				string(REPLACE "@luadir@" "${JANUS_INSTALL_LUA_DIR}" file_content "${file_content}")
+				string(REPLACE "@duktapedir@" "${JANUS_INSTALL_DUKTAPE_DIR}" file_content "${file_content}")
+
+				file(WRITE ${conf_file} ${file_content})
+
+				# copy real file
+				copy_verbose_message("Copying file from [${conf_file}] to [${JANUS_CONF_FILES_PATH}/${real_conf_file}]...")
+				configure_file(
+						${conf_file}
+						${JANUS_CONF_FILES_PATH}/${real_conf_file}
+						COPYONLY
+				)
+
+				continue()
+			endif (${real_conf_file} MATCHES "janus.jcfg.sample")
+
 			# generate temp file for write
 			set(temp_file_path "${conf_file_path}/${real_conf_file}.generated")
 			file(WRITE ${temp_file_path})
