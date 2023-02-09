@@ -31,34 +31,33 @@ Same requirements as `janus`, just follow the instructions in the official `janu
 // copy from https://github.com/meetecho/janus-gateway vvv :)
 To install it, you'll need to satisfy the following dependencies:
 
-* [Jansson](http://www.digip.org/jansson/)
-* [libconfig](https://hyperrealm.github.io/libconfig/)
-* [libnice](https://libnice.freedesktop.org/) (at least v0.1.16 suggested, v0.1.18 recommended)
-* [OpenSSL](http://www.openssl.org/) (at least v1.0.1e)
-* [libsrtp](https://github.com/cisco/libsrtp) (at least v2.x suggested)
-* [usrsctp](https://github.com/sctplab/usrsctp) (only needed if you are interested in Data Channels)
-* [libmicrohttpd](http://www.gnu.org/software/libmicrohttpd/) (at least v0.9.59; only needed if you are interested in REST support for the Janus API)
-* [libwebsockets](https://libwebsockets.org/) (only needed if you are interested in WebSockets support for the Janus API)
-* [cmake](http://www.cmake.org/) (only needed if you are interested in WebSockets and/or BoringSSL support, as they make use of it)
-* [rabbitmq-c](https://github.com/alanxz/rabbitmq-c) (only needed if you are interested in RabbitMQ support for the Janus API or events)
-* [paho.mqtt.c](https://eclipse.org/paho/clients/c) (only needed if you are interested in MQTT support for the Janus API or events)
-* [nanomsg](https://nanomsg.org/) (only needed if you are interested in Nanomsg support for the Janus API)
-* [libcurl](https://curl.haxx.se/libcurl/) (only needed if you are interested in the TURN REST API support)
+* link:http://www.digip.org/jansson/[Jansson]
+* link:https://hyperrealm.github.io/libconfig/[libconfig]
+* link:https://libnice.freedesktop.org/[libnice] (at least v0.1.16 suggested, v0.1.18 recommended)
+* link:http://www.openssl.org/[OpenSSL] (at least v1.0.1e)
+* link:https://github.com/cisco/libsrtp[libsrtp] (at least v2.x suggested)
+* link:https://github.com/sctplab/usrsctp[usrsctp] (only needed if you are interested in Data Channels)
+* link:http://www.gnu.org/software/libmicrohttpd/[libmicrohttpd] (at least v0.9.59; only needed if you are interested in REST support for the Janus API)
+* link:https://libwebsockets.org/[libwebsockets] (only needed if you are interested in WebSockets support for the Janus API)
+* link:https://github.com/alanxz/rabbitmq-c[rabbitmq-c] (only needed if you are interested in RabbitMQ support for the Janus API or events)
+* link:https://eclipse.org/paho/clients/c[paho.mqtt.c] (only needed if you are interested in MQTT support for the Janus API or events)
+* link:https://nanomsg.org/[nanomsg] (only needed if you are interested in Nanomsg support for the Janus API)
+* link:https://curl.haxx.se/libcurl/[libcurl] (only needed if you are interested in the TURN REST API support)
 
 A couple of plugins depend on a few more libraries:
 
-* [Sofia-SIP](https://github.com/freeswitch/sofia-sip) (only needed for the SIP plugin)
-* [libopus](http://opus-codec.org/) (only needed for the AudioBridge plugin)
-* [libogg](http://xiph.org/ogg/) (needed for the VoiceMail plugin and/or post-processor, and optionally AudioBridge and Streaming plugins)
-* [libcurl](https://curl.haxx.se/libcurl/) (only needed if you are interested in RTSP support in the Streaming plugin or in the sample Event Handler plugin)
-* [Lua](https://www.lua.org/download.html) (only needed for the Lua plugin)
-* [Duktape](https://duktape.org/) (only needed for the Duktape plugin)
+* link:https://github.com/freeswitch/sofia-sip[Sofia-SIP] (only needed for the SIP plugin)
+* link:http://opus-codec.org/[libopus] (only needed for the AudioBridge plugin)
+* link:http://xiph.org/ogg/[libogg] (needed for the VoiceMail plugin and/or post-processor, and optionally AudioBridge and Streaming plugins)
+* link:https://curl.haxx.se/libcurl/[libcurl] (only needed if you are interested in RTSP support in the Streaming plugin or in the sample Event Handler plugin)
+* link:https://www.lua.org/download.html[Lua] (only needed for the Lua plugin)
+* link:https://duktape.org/[Duktape] (only needed for the Duktape plugin)
 
 Additionally, you'll need the following libraries and tools:
 
-* [GLib](http://library.gnome.org/devel/glib/)
-* [zlib](https://zlib.net/)
-* [pkg-config](http://www.freedesktop.org/wiki/Software/pkg-config/)
+* link:http://library.gnome.org/devel/glib/[GLib]
+* link:https://zlib.net/[zlib]
+* link:http://www.freedesktop.org/wiki/Software/pkg-config/[pkg-config]
 
 == Install
 
