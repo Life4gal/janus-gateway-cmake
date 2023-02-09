@@ -13,15 +13,6 @@ function(try_use_ssu)
 		endif (JANUS_PLUGIN_SIP)
 	endif (NOT ${LIB_SOFIA_SIP_UA_FOUND})
 
-	janus_append_link_libraries(${LIB_SOFIA_SIP_UA_LIBRARIES})
-	janus_append_link_directories(${LIB_SOFIA_SIP_UA_LIBRARY_DIRS})
-	janus_append_link_libraries_name(${LIB_SOFIA_SIP_UA_LIBRARIES}-${LIB_SOFIA_SIP_UA_VERSION})
-	janus_append_include_directories(${LIB_SOFIA_SIP_UA_INCLUDE_DIRS})
-	janus_append_compile_flags(${LIB_SOFIA_SIP_UA_CFLAGS})
-	janus_append_ld_flags(${LIB_SOFIA_SIP_UA_LDFLAGS})
-
-	set(JANUS_DEPENDENCY_SOFIA-SIP-UA_USED ON PARENT_SCOPE)
-
 	set(CACHE_SOFIA_SIP_UA "sofia-sip-ua" CACHE INTERNAL "sofia-sip-ua." FORCE)
 	set(CACHE_SOFIA_SIP_UA_LIBRARIES ${LIB_SOFIA_SIP_UA_LIBRARIES} CACHE INTERNAL "sofia-sip-ua." FORCE)
 	set(CACHE_SOFIA_SIP_UA_DIRECTORIES ${LIB_SOFIA_SIP_UA_LIBRARY_DIRS} CACHE INTERNAL "sofia-sip-ua." FORCE)
