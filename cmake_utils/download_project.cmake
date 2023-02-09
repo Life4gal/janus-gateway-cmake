@@ -63,7 +63,7 @@ function(download_project)
 	# =============================================
 
 	set(source_file_path ${dest_folder}/src)
-	message(STATUS "Copying files from ${source_file_path} to ${JANUS_HEADER_FILES_PATH}/${JANUS_SOURCE_FILES_PATH}...")
+	message(STATUS "Copying files from ${source_file_path} to ${JANUS_HEADER_FILES_PATH} and ${JANUS_SOURCE_FILES_PATH}...")
 
 	file(
 			GLOB_RECURSE
