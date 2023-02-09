@@ -1,5 +1,8 @@
 include(${PROJECT_SOURCE_DIR}/cmake_utils/prepare_dependencies.cmake)
 
+# config
+janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.jcfg.sample)
+
 find_package(PkgConfig REQUIRED)
 
 # math
@@ -208,15 +211,15 @@ if (JANUS_TRANSPORT_WEBSOCKETS OR JANUS_HANDLER_WEBSOCKETS)
 					"${JANUS_CONF_FILES_PATH}/janus.transport.websockets.jcfg.sample"
 
 					# link_libraries
-					"$CACHE{CACHE_LIBWEBSCOKETS_LIBRARIES}"
+					"$CACHE{CACHE_LIBWEBSCOKETS_LIBRARIES};$CACHE{CACHE_GIO_LIBRARIES}"
 					# link_directories
-					"$CACHE{CACHE_LIBWEBSCOKETS_DIRECTORIES}"
+					"$CACHE{CACHE_LIBWEBSCOKETS_DIRECTORIES};$CACHE{CACHE_GIO_DIRECTORIES}"
 					# include_directories
-					"$CACHE{CACHE_LIBWEBSCOKETS_INCLUDE_DIRECTORIES}"
+					"$CACHE{CACHE_LIBWEBSCOKETS_INCLUDE_DIRECTORIES};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES}"
 					# compile_flags
-					"$CACHE{CACHE_LIBWEBSCOKETS_COMPILE_FLAGS}"
+					"$CACHE{CACHE_LIBWEBSCOKETS_COMPILE_FLAGS};$CACHE{CACHE_GIO_COMPILE_FLAGS}"
 					# ld_flags
-					"$CACHE{CACHE_LIBWEBSCOKETS_LD_FLAGS}"
+					"$CACHE{CACHE_LIBWEBSCOKETS_LD_FLAGS};$CACHE{CACHE_GIO_LD_FLAGS}"
 			)
 		endif (JANUS_TRANSPORT_WEBSOCKETS)
 
@@ -232,15 +235,15 @@ if (JANUS_TRANSPORT_WEBSOCKETS OR JANUS_HANDLER_WEBSOCKETS)
 					"${JANUS_CONF_FILES_PATH}/janus.eventhandler.wsevh.jcfg.sample"
 
 					# link_libraries
-					"$CACHE{CACHE_LIBWEBSCOKETS_LIBRARIES}"
+					"$CACHE{CACHE_LIBWEBSCOKETS_LIBRARIES};$CACHE{CACHE_GIO_LIBRARIES}"
 					# link_directories
-					"$CACHE{CACHE_LIBWEBSCOKETS_DIRECTORIES}"
+					"$CACHE{CACHE_LIBWEBSCOKETS_DIRECTORIES};$CACHE{CACHE_GIO_DIRECTORIES}"
 					# include_directories
-					"$CACHE{CACHE_LIBWEBSCOKETS_INCLUDE_DIRECTORIES}"
+					"$CACHE{CACHE_LIBWEBSCOKETS_INCLUDE_DIRECTORIES};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES}"
 					# compile_flags
-					"$CACHE{CACHE_LIBWEBSCOKETS_COMPILE_FLAGS}"
+					"$CACHE{CACHE_LIBWEBSCOKETS_COMPILE_FLAGS};$CACHE{CACHE_GIO_COMPILE_FLAGS}"
 					# ld_flags
-					"$CACHE{CACHE_LIBWEBSCOKETS_LD_FLAGS}"
+					"$CACHE{CACHE_LIBWEBSCOKETS_LD_FLAGS};$CACHE{CACHE_GIO_LD_FLAGS}"
 			)
 		endif (JANUS_HANDLER_WEBSOCKETS)
 	endif (DEFINED CACHE{CACHE_LIBWEBSCOKETS})
@@ -586,6 +589,23 @@ if (JANUS_PLUGIN_ECHO_TEST)
 			# ld_flags
 			""
 	)
+
+	# copy data files
+	set(
+			libjanus_recordplay_data_files
+			${JANUS_SOURCE_FILES_PATH}/plugins/recordings/1234.nfo
+			${JANUS_SOURCE_FILES_PATH}/plugins/recordings/rec-sample-audio.mjr
+			${JANUS_SOURCE_FILES_PATH}/plugins/recordings/rec-sample-video.mjr
+	)
+	foreach (file IN LISTS libjanus_recordplay_data_files)
+		file(RELATIVE_PATH filename ${JANUS_SOURCE_FILES_PATH}/plugins/recordings ${file})
+
+		configure_file(
+				${file}
+				${JANUS_INSTALL_RECORDING_DIR}/${filename}
+				COPYONLY
+		)
+	endforeach (file IN LISTS libjanus_recordplay_data_files)
 endif (JANUS_PLUGIN_ECHO_TEST)
 
 # LIB_LUA
@@ -603,7 +623,7 @@ if (JANUS_PLUGIN_LUA OR JANUS_PLUGIN_LUA_TRY_USE)
 		)
 		janus_append_extra_libraries(
 				# name
-				libjanus_pfunix
+				libjanus_lua
 				# source
 				"${libjanus_pfunix_source}"
 				# dest_path
@@ -622,6 +642,24 @@ if (JANUS_PLUGIN_LUA OR JANUS_PLUGIN_LUA_TRY_USE)
 				# ld_flags
 				"$CACHE{CACHE_LUA_LD_FLAGS};$CACHE{CACHE_GIO_LD_FLAGS}"
 		)
+
+		# copy data files
+		set(
+				libjanus_lua_data_files
+				${JANUS_SOURCE_FILES_PATH}/plugins/lua/echotest.lua
+				${JANUS_SOURCE_FILES_PATH}/plugins/lua/videoroom.lua
+				${JANUS_SOURCE_FILES_PATH}/plugins/lua/janus-logger.lua
+				${JANUS_SOURCE_FILES_PATH}/plugins/lua/janus-sdp.lua
+		)
+		foreach (file IN LISTS libjanus_lua_data_files)
+			file(RELATIVE_PATH filename ${JANUS_SOURCE_FILES_PATH}/plugins/lua ${file})
+
+			configure_file(
+					${file}
+					${JANUS_INSTALL_LUA_DIR}/${filename}
+					COPYONLY
+			)
+		endforeach (file IN LISTS libjanus_lua_data_files)
 	endif (DEFINED CACHE{CACHE_LUA})
 endif (JANUS_PLUGIN_LUA OR JANUS_PLUGIN_LUA_TRY_USE)
 
@@ -731,6 +769,26 @@ if (JANUS_PLUGIN_STREAMING)
 			# ld_flags
 			"$CACHE{CACHE_LIBCURL_LD_FLAGS};$CACHE{CACHE_OGG_LD_FLAGS};$CACHE{CACHE_SRTP_LD_FLAGS}"
 	)
+
+	# copy data files
+	set(
+			libjanus_streaming_data_files
+			${JANUS_SOURCE_FILES_PATH}/plugins/streams/music.mulaw
+			${JANUS_SOURCE_FILES_PATH}/plugins/streams/radio.mulaw
+			${JANUS_SOURCE_FILES_PATH}/plugins/streams/test_gstreamer.mulaw
+			${JANUS_SOURCE_FILES_PATH}/plugins/streams/test_gstreamer1.mulaw
+			${JANUS_SOURCE_FILES_PATH}/plugins/streams/test_gstreamer_multistream.mulaw
+			${JANUS_SOURCE_FILES_PATH}/plugins/streams/test_gstreamer1_multistream.mulaw
+	)
+	foreach (file IN LISTS libjanus_streaming_data_files)
+		file(RELATIVE_PATH filename ${JANUS_SOURCE_FILES_PATH}/plugins/streams ${file})
+
+		configure_file(
+				${file}
+				${JANUS_INSTALL_STREAM_DIR}/${filename}
+				COPYONLY
+		)
+	endforeach (file IN LISTS libjanus_streaming_data_files)
 endif (JANUS_PLUGIN_STREAMING)
 
 if (JANUS_PLUGIN_TEXT_ROOM)
@@ -877,11 +935,16 @@ janus_check_libpcap()
 
 # copy config file
 file(MAKE_DIRECTORY ${JANUS_INSTALL_CONFIG_DIR})
-foreach (file ${JANUS_CONF_FILES})
+foreach (file IN LISTS JANUS_CONF_FILES JANUS_EXTRA_LIBRARIES_CONF_FILES)
 	file(RELATIVE_PATH relative_conf_file "${JANUS_CONF_FILES_PATH}" "${file}")
 
 	# xxx.sample -> xxx
-	string(REGEX REPLACE "^.*/(.*)[.]sample$" "//1" basename ${relative_conf_file})
+	string(REPLACE ".sample" "" basename ${relative_conf_file})
+
 	file(COPY_FILE ${file} ${JANUS_INSTALL_CONFIG_DIR}/${relative_conf_file})
-	file(COPY_FILE ${file} ${JANUS_INSTALL_CONFIG_DIR}/${basename})
-endforeach (file ${JANUS_CONF_FILES})
+
+	# TODO: overwritten?
+	if (NOT EXISTS ${JANUS_INSTALL_CONFIG_DIR}/${basename})
+		file(COPY_FILE ${file} ${JANUS_INSTALL_CONFIG_DIR}/${basename})
+	endif (NOT EXISTS ${JANUS_INSTALL_CONFIG_DIR}/${basename})
+endforeach (file IN LISTS JANUS_CONF_FILES JANUS_EXTRA_LIBRARIES_CONF_FILES)

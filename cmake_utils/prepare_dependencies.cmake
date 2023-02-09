@@ -6,7 +6,9 @@ set(JANUS_COMPILE_FLAGS "" CACHE INTERNAL "janus compile flags" FORCE)
 # TODO: Is it necessary? We can use `JANUS_COMPILE_FLAGS`.
 set(JANUS_COMPILE_DEFINITIONS "" CACHE INTERNAL "janus compile definitions" FORCE)
 set(JANUS_LD_FLAGS "" CACHE INTERNAL "janus ld flags" FORCE)
+
 set(JANUS_EXTRA_SOURCE_FILES "" CACHE INTERNAL "janus extra source" FORCE)
+set(JANUS_CONF_FILES "" CACHE INTERNAL "janus conf file" FORCE)
 
 set(JANUS_EXTRA_LIBRARIES "" CACHE INTERNAL "janus extra libraries" FORCE)
 set(JANUS_EXTRA_LIBRARIES_SOURCE_FILES "" CACHE INTERNAL "janus extra libraries source files" FORCE)
@@ -95,8 +97,18 @@ function(janus_print_all_dependencies_info)
 	#	message(STATUS "-->\t\t ${file}")
 	#endforeach (file IN LISTS $CACHE{JANUS_EXTRA_SOURCE_FILES})
 	foreach (file IN LISTS JANUS_EXTRA_SOURCE_FILES)
-		message(STATUS "-->\t\t ${library}")
+		message(STATUS "-->\t\t ${file}")
 	endforeach (file IN LISTS JANUS_EXTRA_SOURCE_FILES)
+
+	message(STATUS "=======================================")
+
+	message(STATUS "CONF FILES:")
+	#foreach (file IN LISTS $CACHE{JANUS_CONF_FILES})
+	#	message(STATUS "-->\t\t ${file}")
+	#endforeach (file IN LISTS $CACHE{JANUS_CONF_FILES})
+	foreach (file IN LISTS JANUS_CONF_FILES)
+		message(STATUS "-->\t\t ${file}")
+	endforeach (file IN LISTS JANUS_CONF_FILES)
 
 	message(STATUS "=======================================")
 
@@ -120,7 +132,7 @@ function(janus_print_all_dependencies_info)
 
 	message(STATUS "=======================================")
 
-	message(STATUS "CONFIG FILES:")
+	message(STATUS "EXTRA LIBRARIES CONFIG FILES:")
 	#foreach (file IN LISTS $CACHE{JANUS_EXTRA_LIBRARIES_CONF_FILES})
 	#	message(STATUS "-->\t\t ${file}")
 	#endforeach (file IN LISTS $CACHE{JANUS_EXTRA_LIBRARIES_CONF_FILES})
@@ -212,6 +224,18 @@ function(janus_append_source_file)
 		endif (${index} EQUAL -1)
 	endforeach (it_file ${ARGN})
 endfunction(janus_append_source_file)
+
+function(janus_append_config_file)
+	foreach (it_file ${ARGN})
+		list(FIND JANUS_CONF_FILES ${it_file} index)
+		if (${index} EQUAL -1)
+			janus_verbose_message("Append config file [${it_file}]")
+			set(JANUS_CONF_FILES ${JANUS_CONF_FILES} ${it_file} CACHE INTERNAL "janus conf source" FORCE)
+		else ()
+			message(FATAL_ERROR "Duplicate config file [${it_file}].")
+		endif (${index} EQUAL -1)
+	endforeach (it_file ${ARGN})
+endfunction(janus_append_config_file)
 
 function(
 		janus_append_extra_libraries
