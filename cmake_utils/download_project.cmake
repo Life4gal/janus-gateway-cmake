@@ -83,6 +83,16 @@ function(download_project)
 	)
 	copy_verbose_message("The source files to be copied: ${SOURCE_FILES}")
 
+	# misc files
+	file(
+			GLOB_RECURSE
+			MISC_FILES
+			CONFIGURE_DEPENDS
+
+			${source_file_path}/*.*
+	)
+	list(FILTER MISC_FILES EXCLUDE REGEX "^.*[.][^hc]$")
+
 	foreach (header_file IN LISTS HEADER_FILES)
 		file(RELATIVE_PATH relative_header_file ${source_file_path} ${header_file})
 
@@ -104,6 +114,17 @@ function(download_project)
 				COPYONLY
 		)
 	endforeach (source_file IN LISTS SOURCE_FILES)
+
+	foreach (misc_file IN LISTS MISC_FILES)
+		file(RELATIVE_PATH relative_misc_file ${source_file_path} ${misc_file})
+
+		copy_verbose_message("Copying file from [${misc_file}] to [${JANUS_SOURCE_FILES_PATH}/${relative_misc_file}]...")
+		configure_file(
+				${misc_file}
+				${JANUS_SOURCE_FILES_PATH}/${relative_misc_file}
+				COPYONLY
+		)
+	endforeach (misc_file IN LISTS MISC_FILES)
 
 	# =============================================
 	# CONFIGS
