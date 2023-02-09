@@ -16,9 +16,9 @@ function(try_use_websockets)
 	include(CheckLibraryExists)
 
 	CHECK_LIBRARY_EXISTS(
-			${LIB_LIBWEBSCOKETS_LIBRARIES}
+			libwebsockets
 			lws_create_vhost
-			${LIB_LIBWEBSCOKETS_LIBRARY_DIRS}
+			"${LIB_LIBWEBSCOKETS_LIBRARY_DIRS}"
 			LIB_LIBWEBSCOKETS_HAS_lws_create_vhost
 	)
 
@@ -27,9 +27,9 @@ function(try_use_websockets)
 			janus_append_compile_definitions(HAVE_WEBSOCKETS)
 
 			CHECK_LIBRARY_EXISTS(
-					${LIB_LIBWEBSCOKETS_LIBRARIES}
+					libwebsockets
 					lws_get_peer_simple
-					${LIB_LIBWEBSCOKETS_LIBRARY_DIRS}
+					"${LIB_LIBWEBSCOKETS_LIBRARY_DIRS}"
 					LIB_LIBWEBSCOKETS_HAS_lws_get_peer_simple
 			)
 
