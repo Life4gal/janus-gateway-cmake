@@ -1,4 +1,8 @@
-pkg_check_modules(LIB_LIBSSL QUIET REQUIRED libssl>=1.0.1)
+pkg_check_modules(LIB_LIBSSL QUIET libssl>=1.0.1)
+
+if (NOT ${LIB_LIBSSL_FOUND})
+	message(FATAL_ERROR "Cannot find libssl on your platform, install it first...")
+endif (NOT ${LIB_LIBSSL_FOUND})
 
 janus_append_link_libraries(${LIB_LIBSSL_LIBRARIES})
 janus_append_link_directories(${LIB_LIBSSL_LIBRARY_DIRS})

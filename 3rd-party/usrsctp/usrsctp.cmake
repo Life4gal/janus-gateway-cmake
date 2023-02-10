@@ -1,4 +1,8 @@
-pkg_check_modules(LIB_USRSCTP QUIET REQUIRED usrsctp)
+pkg_check_modules(LIB_USRSCTP QUIET usrsctp)
+
+if (NOT ${LIB_USRSCTP_FOUND})
+	message(FATAL_ERROR "Cannot find usrsctp on your platform, install it first...")
+endif (NOT ${LIB_USRSCTP_FOUND})
 
 janus_append_link_libraries(${LIB_USRSCTP_LIBRARIES})
 janus_append_link_directories(${LIB_USRSCTP_LIBRARY_DIRS})

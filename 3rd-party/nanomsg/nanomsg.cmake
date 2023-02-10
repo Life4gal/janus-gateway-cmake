@@ -3,8 +3,12 @@ function(try_use_nanomsg)
 		return()
 	endif (NOT JANUS_TRANSPORT_NANOMSG AND NOT JANUS_HANDLER_NANOMSG)
 
-	pkg_check_modules(LIB_NANOMSG QUIET REQUIRED nanomsg)
-	
+	pkg_check_modules(LIB_NANOMSG QUIET nanomsg)
+
+	if (NOT ${LIB_NANOMSG_FOUND})
+		message(FATAL_ERROR "Cannot find nanomsg on your platform, install it first...")
+	endif (NOT ${LIB_NANOMSG_FOUND})
+
 	set(CACHE_NANOMSG "nanomsg" CACHE INTERNAL "nanomsg." FORCE)
 	set(CACHE_NANOMSG_LIBRARIES ${LIB_NANOMSG_LIBRARIES} CACHE INTERNAL "nanomsg." FORCE)
 	set(CACHE_NANOMSG_DIRECTORIES ${LIB_NANOMSG_LIBRARY_DIRS} CACHE INTERNAL "nanomsg." FORCE)

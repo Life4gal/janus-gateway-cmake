@@ -1,4 +1,8 @@
-pkg_check_modules(LIB_ZLIB QUIET REQUIRED zlib)
+pkg_check_modules(LIB_ZLIB QUIET zlib)
+
+if (NOT ${LIB_ZLIB_FOUND})
+	message(FATAL_ERROR "Cannot find zlib on your platform, install it first...")
+endif (NOT ${LIB_ZLIB_FOUND})
 
 set(CACHE_ZLIB "zlib" CACHE INTERNAL "zlib." FORCE)
 set(CACHE_ZLIB_LIBRARIES ${LIB_ZLIB_LIBRARIES} CACHE INTERNAL "zlib." FORCE)

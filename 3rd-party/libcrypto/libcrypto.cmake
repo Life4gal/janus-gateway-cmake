@@ -1,4 +1,8 @@
-pkg_check_modules(LIB_LIBCRYPTO QUIET REQUIRED libcrypto)
+pkg_check_modules(LIB_LIBCRYPTO QUIET libcrypto)
+
+if (NOT ${LIB_LIBCRYPTO_FOUND})
+	message(FATAL_ERROR "Cannot find libcrypto on your platform, install it first...")
+endif (NOT ${LIB_LIBCRYPTO_FOUND})
 
 janus_append_link_libraries(${LIB_LIBCRYPTO_LIBRARIES})
 janus_append_link_directories(${LIB_LIBCRYPTO_LIBRARY_DIRS})

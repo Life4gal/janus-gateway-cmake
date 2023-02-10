@@ -1,4 +1,8 @@
-pkg_check_modules(LIB_BORINGSSL QUIET REQUIRED boringssl)
+pkg_check_modules(LIB_BORINGSSL QUIET boringssl)
+
+if (NOT ${LIB_BORINGSSL_FOUND})
+	message(FATAL_ERROR "Cannot find boringssl on your platform, install it first...")
+endif (NOT ${LIB_BORINGSSL_FOUND})
 
 set(CACHE_BORINGSSL "boringssl" CACHE INTERNAL "boringssl." FORCE)
 set(CACHE_BORINGSSL_LIBRARIES ${LIB_BORINGSSL_LIBRARIES} CACHE INTERNAL "boringssl." FORCE)

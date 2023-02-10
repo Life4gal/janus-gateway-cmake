@@ -1,4 +1,8 @@
-pkg_check_modules(LIB_JANSSON QUIET REQUIRED jansson>=2.5)
+pkg_check_modules(LIB_JANSSON QUIET jansson>=2.5)
+
+if (NOT ${LIB_JANSSON_FOUND})
+	message(FATAL_ERROR "Cannot find jansson on your platform, install it first...")
+endif (NOT ${LIB_JANSSON_FOUND})
 
 set(CACHE_JANSSON "jansson" CACHE INTERNAL "jansson." FORCE)
 set(CACHE_JANSSON_LIBRARIES ${LIB_JANSSON_LIBRARIES} CACHE INTERNAL "jansson." FORCE)

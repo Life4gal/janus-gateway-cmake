@@ -1,4 +1,8 @@
-pkg_check_modules(LIB_NICE QUIET REQUIRED nice)
+pkg_check_modules(LIB_NICE QUIET nice)
+
+if (NOT ${LIB_NICE_FOUND})
+	message(FATAL_ERROR "Cannot find nice on your platform, install it first...")
+endif (NOT ${LIB_NICE_FOUND})
 
 janus_append_link_libraries(${LIB_NICE_LIBRARIES})
 janus_append_link_directories(${LIB_NICE_LIBRARY_DIRS})
