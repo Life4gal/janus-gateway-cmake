@@ -57,9 +57,9 @@ set(JANUS_EXE_MAIN_NAME ${PROJECT_NAME})
 set(JANUS_EXE_CFGCONV_NAME ${PROJECT_NAME}-cfgconv)
 
 if (${JANUS_MASTER_PROJECT})
-	message(STATUS "Our project [${PROJECT_NAME}] is the main-project. CMAKE VERSION: ${CMAKE_VERSION}. Compiler ID: ${CMAKE_C_COMPILER_ID}. Platform: ${CMAKE_SYSTEM_NAME}.")
+	message(STATUS "Our project [${PROJECT_NAME}] is the main-project. CMAKE VERSION: ${CMAKE_VERSION}. Compiler ID: ${CMAKE_C_COMPILER_ID}. Platform: ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}.")
 else ()
-	message(STATUS "Our project [${PROJECT_NAME}] is the sub-project. CMAKE VERSION: ${CMAKE_VERSION}. Compiler ID: ${CMAKE_C_COMPILER_ID}. Platform: ${CMAKE_SYSTEM_NAME}.")
+	message(STATUS "Our project [${PROJECT_NAME}] is the sub-project. CMAKE VERSION: ${CMAKE_VERSION}. Compiler ID: ${CMAKE_C_COMPILER_ID}. Platform: ${CMAKE_SYSTEM_NAME}-${CMAKE_SYSTEM_PROCESSOR}.")
 endif (${JANUS_MASTER_PROJECT})
 message(STATUS "${PROJECT_NAME} VERSION: ${JANUS_VERSION}")
 message(STATUS "${PROJECT_NAME} BUILD TYPE: ${CMAKE_BUILD_TYPE}")
@@ -127,7 +127,7 @@ SET(JANUS_CONF_FILES_PATH ${PROJECT_SOURCE_DIR}/conf)
 #   If xxx is `ON` and `target-library` cannot be found then compilation will stop.
 
 option(JANUS_DOC "Enable building documentation." OFF)
-option(JANUS_DATA_CHANNELS "Enable DataChannels." ON)
+option(JANUS_DATA_CHANNELS "Enable DataChannels." OFF)
 option(JANUS_BORINGSSL "Use BoringSSL instead of OpenSSL." OFF)
 option(JANUS_LIBSRTP2 "Use libsrtp 2.0.x instead of libsrtp 1.5.x." ON)
 option(JANUS_DISABLE_ASE_GCM "Disable AES-GCM support in libsrtp(2)" OFF)
@@ -235,6 +235,7 @@ set_target_properties(
 )
 
 include(${PROJECT_SOURCE_DIR}/cmake_utils/download_project.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake_utils/find_system_library.cmake)
 include(${PROJECT_SOURCE_DIR}/cmake_utils/check_dependencies.cmake)
 # TODO: Originally, the project's source and header files were in the same directory, but we separated them and needed a way for the source files to find the header files correctly.
 #   1.Change back to the original way of putting source files and header files in the same directory.
@@ -324,7 +325,7 @@ execute_process(
 		# ECHO_ERROR_VARIABLE
 		# COMMAND_ERROR_IS_FATAL ANY
 )
-string(REPLACE "\n" "" git_sha ${git_sha})
+string(REPLACE "\n" "" git_sha "${git_sha}")
 #message("result: ${git_result}\n sha: ${git_sha}")
 
 execute_process(
@@ -337,7 +338,7 @@ execute_process(
 		# ECHO_ERROR_VARIABLE
 		# COMMAND_ERROR_IS_FATAL ANY
 )
-string(REPLACE "\n" "" date_time ${date_time})
+string(REPLACE "\n" "" date_time "${date_time}")
 #message("result: ${date_result}\n time: ${date_time}")
 
 execute_process(
@@ -350,7 +351,7 @@ execute_process(
 		# ECHO_ERROR_VARIABLE
 		# COMMAND_ERROR_IS_FATAL ANY
 )
-string(REPLACE "\n" "" pkgconfig_nice_version ${pkgconfig_nice_version})
+string(REPLACE "\n" "" pkgconfig_nice_version "${pkgconfig_nice_version}")
 #message("result: ${pkgconfig_result}\n nice version: ${pkgconfig_nice_version}")
 
 file(
