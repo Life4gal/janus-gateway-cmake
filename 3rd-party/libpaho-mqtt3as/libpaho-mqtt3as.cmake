@@ -16,8 +16,8 @@ function(try_use_paho_mqtt3a)
 	set_target_properties(
 			${LIB_LIBPAHO_MQTT3AS_LIBRARIES}
 			PROPERTIES
-			IMPORTED_LOCATION ${LIBPAHO_MQTT3AS_PATH}/libpago-mqtt3as.so
-			IMPORTED_IMPLIB ${LIBPAHO_MQTT3AS_PATH}/libpago-mqtt3as.a
+			IMPORTED_LOCATION ${LIBPAHO_MQTT3AS_PATH}/libpaho-mqtt3as.so
+			IMPORTED_IMPLIB ${LIBPAHO_MQTT3AS_PATH}/libpaho-mqtt3as.a
 	)
 
 	set(CACHE_LIBPAHO_MQTT3AS "libpaho_mqtt3as" CACHE INTERNAL "libpaho_mqtt3as." FORCE)

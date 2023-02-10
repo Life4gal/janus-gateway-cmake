@@ -127,13 +127,13 @@ SET(JANUS_CONF_FILES_PATH ${PROJECT_SOURCE_DIR}/conf)
 #   If xxx is `ON` and `target-library` cannot be found then compilation will stop.
 
 option(JANUS_DOC "Enable building documentation." OFF)
-option(JANUS_DATA_CHANNELS "Disable DataChannels." ON)
+option(JANUS_DATA_CHANNELS "Enable DataChannels." ON)
 option(JANUS_BORINGSSL "Use BoringSSL instead of OpenSSL." OFF)
 option(JANUS_LIBSRTP2 "Use libsrtp 2.0.x instead of libsrtp 1.5.x." ON)
 option(JANUS_DISABLE_ASE_GCM "Disable AES-GCM support in libsrtp(2)" OFF)
 option(JANUS_DTLS_SET_TIMEOUT "Use DTLSv1_set_initial_timeout_duration (only available in recent BoringSSL versions)" OFF)
 option(JANUS_PTHREAD_MUTEX "Use pthread_mutex instead of GMutex (see #1397)" ON)
-option(JANUS_TURN_REST_API "Disable TURN REST API client (via libcurl)" ON)
+option(JANUS_TURN_REST_API "Enable TURN REST API client (via libcurl)" ON)
 
 # plugins
 option(JANUS_PLUGIN_AUDIO_BRIDGE "" OFF)
@@ -142,21 +142,21 @@ option(JANUS_PLUGIN_AUDIO_BRIDGE_TRY_USE "" ON)
 option(JANUS_PLUGIN_DUKTAPE "" OFF)
 option(JANUS_PLUGIN_DUKTAPE_TRY_USE "" ON)
 
-option(JANUS_PLUGIN_ECHO_TEST "" OFF)
+option(JANUS_PLUGIN_ECHO_TEST "" ON)
 
 option(JANUS_PLUGIN_LUA "" OFF)
 option(JANUS_PLUGIN_LUA_TRY_USE "" ON)
 
-option(JANUS_PLUGIN_RECORD_PLAY "" OFF)
+option(JANUS_PLUGIN_RECORD_PLAY "" ON)
 
 option(JANUS_PLUGIN_SIP "" OFF)
 option(JANUS_PLUGIN_SIP_TRY_USE "" ON)
 
 option(JANUS_PLUGIN_NO_SIP "" OFF)
-option(JANUS_PLUGIN_STREAMING "" OFF)
-option(JANUS_PLUGIN_TEXT_ROOM "" OFF)
-option(JANUS_PLUGIN_VIDEO_CALL "" OFF)
-option(JANUS_PLUGIN_VIDEO_ROOM "" OFF)
+option(JANUS_PLUGIN_STREAMING "" ON)
+option(JANUS_PLUGIN_TEXT_ROOM "" ON)
+option(JANUS_PLUGIN_VIDEO_CALL "" ON)
+option(JANUS_PLUGIN_VIDEO_ROOM "" ON)
 
 option(JANUS_PLUGIN_VOICE_MAIL "" OFF)
 option(JANUS_PLUGIN_VOICE_MAIL_TRY_USE "" ON)
@@ -165,22 +165,22 @@ option(JANUS_PLUGIN_VOICE_MAIL_TRY_USE "" ON)
 option(JANUS_TRANSPORT_REST "Enable REST (HTTP/HTTPS) support" OFF)
 option(JANUS_TRANSPORT_REST_TRY_USE "Try to enable REST (HTTP/HTTPS) support" ON)
 
-option(JANUS_TRANSPORT_WEBSOCKETS "Enable WebSockets support" OFF)
-option(JANUS_TRANSPORT_RABBITMQ "Enable RabbitMQ integration" OFF)
-option(JANUS_TRANSPORT_MQTT "Enable MQTT integration" OFF)
-option(JANUS_TRANSPORT_NANOMSG "Enable Nanomsg integration" OFF)
-option(JANUS_TRANSPORT_UNIX_SOCKETS "Enable Unix Sockets integration" OFF)
+option(JANUS_TRANSPORT_WEBSOCKETS "Enable WebSockets support" ON)
+option(JANUS_TRANSPORT_RABBITMQ "Enable RabbitMQ integration" ON)
+option(JANUS_TRANSPORT_MQTT "Enable MQTT integration" ON)
+option(JANUS_TRANSPORT_NANOMSG "Enable Nanomsg integration" ON)
+option(JANUS_TRANSPORT_UNIX_SOCKETS "Enable Unix Sockets integration" ON)
 
 # handler
-option(JANUS_HANDLER_SAMPLE "Enable sample event handler (HTTP POST)" OFF)
-option(JANUS_HANDLER_WEBSOCKETS "Enable WebSockets event handler" OFF)
-option(JANUS_HANDLER_RABBITMQ "Enable RabbitMQ event handler" OFF)
-option(JANUS_HANDLER_MQTT "Enable MQTT event handler" OFF)
-option(JANUS_HANDLER_NANOMSG "Enable Nanomsg event handler" OFF)
-option(JANUS_HANDLER_GELF "Enable gelf event handler" OFF)
+option(JANUS_HANDLER_SAMPLE "Enable sample event handler (HTTP POST)" ON)
+option(JANUS_HANDLER_WEBSOCKETS "Enable WebSockets event handler" ON)
+option(JANUS_HANDLER_RABBITMQ "Enable RabbitMQ event handler" ON)
+option(JANUS_HANDLER_MQTT "Enable MQTT event handler" ON)
+option(JANUS_HANDLER_NANOMSG "Enable Nanomsg event handler" ON)
+option(JANUS_HANDLER_GELF "Enable gelf event handler" ON)
 
 # logger
-option(JANUS_LOGGER_JSON "Enable external JSON file logger" OFF)
+option(JANUS_LOGGER_JSON "Enable external JSON file logger" ON)
 
 # js module
 option(JANUS_JS_MODULE_ES "Generate an ECMAScript style module from janus.js" ON)
