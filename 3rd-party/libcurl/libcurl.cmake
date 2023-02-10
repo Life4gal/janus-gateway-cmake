@@ -1,4 +1,4 @@
-pkg_check_modules(LIB_LIBCURL QUIET libcurl)
+pkg_check_modules(LIB_LIBCURL libcurl)
 
 if (NOT LIB_LIBCURL_FOUND)
 	if (JANUS_TURN_REST_API)

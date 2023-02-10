@@ -1,8 +1,8 @@
-pkg_check_modules(LIB_GIO QUIET gio-2.0>=2.34)
+pkg_check_modules(LIB_GIO gio-2.0>=2.34)
 
-if (NOT ${LIB_GIO_FOUND})
+if (NOT LIB_GIO_FOUND)
 	message(FATAL_ERROR "Cannot find gio-2.0 on your platform, install it first...")
-endif (NOT ${LIB_GIO_FOUND})
+endif (NOT LIB_GIO_FOUND)
 
 set(CACHE_GIO "gio-2.0" CACHE INTERNAL "gio-2.0." FORCE)
 set(CACHE_GIO_LIBRARIES ${LIB_GIO_LIBRARIES} CACHE INTERNAL "gio-2.0." FORCE)

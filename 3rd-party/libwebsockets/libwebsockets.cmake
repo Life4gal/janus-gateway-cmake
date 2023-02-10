@@ -3,11 +3,11 @@ function(try_use_websockets)
 		return()
 	endif (NOT JANUS_TRANSPORT_WEBSOCKETS AND NOT JANUS_HANDLER_WEBSOCKETS)
 
-	pkg_check_modules(LIB_LIBWEBSOCKET QUIET libwebsockets)
+	pkg_check_modules(LIB_LIBWEBSOCKET libwebsockets)
 
-	if (NOT ${LIB_LIBWEBSOCKET_FOUND})
+	if (NOT LIB_LIBWEBSOCKET_FOUND)
 		message(FATAL_ERROR "Cannot find libwebsockets on your platform, install it first...")
-	endif (NOT ${LIB_LIBWEBSOCKET_FOUND})
+	endif (NOT LIB_LIBWEBSOCKET_FOUND)
 
 	set(CACHE_LIBWEBSCOKETS "libwebsockets" CACHE INTERNAL "libwebsockets." FORCE)
 	set(CACHE_LIBWEBSCOKETS_LIBRARIES ${LIB_LIBWEBSCOKETS_LIBRARIES} CACHE INTERNAL "libwebsockets." FORCE)

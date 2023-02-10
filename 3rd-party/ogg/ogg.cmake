@@ -3,15 +3,15 @@ function(try_use_ogg)
 		return()
 	endif (NOT JANUS_PLUGIN_VOICE_MAIL AND NOT JANUS_PLUGIN_VOICE_MAIL_TRY_USE)
 
-	pkg_check_modules(LIB_OGG QUIET ogg)
+	pkg_check_modules(LIB_OGG ogg)
 
-	if (NOT ${LIB_OGG_FOUND})
+	if (NOT LIB_OGG_FOUND)
 		if (JANUS_PLUGIN_AUDIO_BRIDGE)
 			message(FATAL_ERROR "OGG not found. See README.md for installation instructions or set JANUS_PLUGIN_VOICE_MAIL off")
 		elseif (JANUS_PLUGIN_AUDIO_BRIDGE_TRY_USE)
 			return()
 		endif (JANUS_PLUGIN_AUDIO_BRIDGE)
-	endif (NOT ${LIB_OGG_FOUND})
+	endif (NOT LIB_OGG_FOUND)
 
 	set(CACHE_OGG "ogg" CACHE INTERNAL "ogg." FORCE)
 	set(CACHE_OGG_LIBRARIES ${LIB_OGG_LIBRARIES} CACHE INTERNAL "ogg." FORCE)

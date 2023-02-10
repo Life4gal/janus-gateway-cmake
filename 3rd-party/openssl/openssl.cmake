@@ -3,11 +3,11 @@ if (JANUS_PLATFORM_MACOS)
 	set(ENV{PKG_CONFIG_PATH} "/usr/local/opt/openssl@3/lib/pkgconfig")
 endif (JANUS_PLATFORM_MACOS)
 
-pkg_check_modules(LIB_OPENSSL QUIET openssl)
+pkg_check_modules(LIB_OPENSSL openssl)
 
-if (NOT ${LIB_OPENSSL_FOUND})
+if (NOT LIB_OPENSSL_FOUND)
 	message(FATAL_ERROR "Cannot find openssl on your platform, install it first...")
-endif (NOT ${LIB_OPENSSL_FOUND})
+endif (NOT LIB_OPENSSL_FOUND)
 
 set(CACHE_OPENSSL "openssl" CACHE INTERNAL "openssl." FORCE)
 set(CACHE_OPENSSL_LIBRARIES ${LIB_OPENSSL_LIBRARIES} CACHE INTERNAL "openssl." FORCE)

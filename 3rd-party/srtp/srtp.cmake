@@ -1,17 +1,17 @@
 if (JANUS_LIBSRTP2)
 	# libsrtp2
-	pkg_check_modules(LIB_SRTP QUIET libsrtp2)
+	pkg_check_modules(LIB_SRTP libsrtp2)
 
 	if (NOT ${LIB_SRTP_FOUND})
 		message(FATAL_ERROR "Cannot find libsrtp2 on your platform, install it first...")
 	endif (NOT ${LIB_SRTP_FOUND})
 else ()
 	# libsrtp 1.5.x
-	pkg_check_modules(LIB_SRTP QUIET libsrtp>=1.5)
+	pkg_check_modules(LIB_SRTP libsrtp>=1.5)
 
-	if (NOT ${LIB_SRTP_FOUND})
+	if (NOT LIB_SRTP_FOUND)
 		message(FATAL_ERROR "Cannot find libsrtp on your platform, install it first...")
-	endif (NOT ${LIB_SRTP_FOUND})
+	endif (NOT LIB_SRTP_FOUND)
 endif (JANUS_LIBSRTP2)
 
 set(CACHE_SRTP "libsrtp" CACHE INTERNAL "libsrtp." FORCE)

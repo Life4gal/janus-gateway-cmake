@@ -1,8 +1,8 @@
-pkg_check_modules(LIB_LIBCONFIG QUIET libconfig)
+pkg_check_modules(LIB_LIBCONFIG libconfig)
 
-if (NOT ${LIB_LIBCONFIG_FOUND})
+if (NOT LIB_LIBCONFIG_FOUND)
 	message(FATAL_ERROR "Cannot find libconfig on your platform, install it first...")
-endif (NOT ${LIB_LIBCONFIG_FOUND})
+endif (NOT LIB_LIBCONFIG_FOUND)
 
 set(CACHE_LIBCONFIG "libconfig" CACHE INTERNAL "libconfig." FORCE)
 set(CACHE_LIBCONFIG_LIBRARIES ${LIB_LIBCONFIG_LIBRARIES} CACHE INTERNAL "libconfig." FORCE)

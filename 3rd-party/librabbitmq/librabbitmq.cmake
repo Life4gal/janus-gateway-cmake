@@ -3,7 +3,11 @@ function(try_use_rabbitmq)
 		return()
 	endif (NOT JANUS_TRANSPORT_RABBITMQ AND NOT JANUS_HANDLER_RABBITMQ)
 
-	pkg_check_modules(LIB_LIBRABBITMQ QUIET REQUIRED librabbitmq)
+	pkg_check_modules(LIB_LIBRABBITMQ librabbitmq)
+
+	if (NOT LIB_LIBRABBITMQ_FOUND)
+		message(FATAL_ERROR "Cannot find librabbitmq on your platform, install it first...")
+	endif (NOT LIB_LIBRABBITMQ_FOUND)
 
 	set(CACHE_LIBRABBITMQ "librabbitmq" CACHE INTERNAL "librabbitmq." FORCE)
 	set(CACHE_LIBRABBITMQ_LIBRARIES ${LIB_LIBRABBITMQ_LIBRARIES} CACHE INTERNAL "librabbitmq." FORCE)

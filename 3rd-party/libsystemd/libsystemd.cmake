@@ -1,8 +1,8 @@
-pkg_check_modules(LIB_LIBSYSTEMD QUIET libsystemd)
+pkg_check_modules(LIB_LIBSYSTEMD libsystemd)
 
-if (NOT ${LIB_LIBSYSTEMD_FOUND})
+if (NOT LIB_LIBSYSTEMD_FOUND)
 	message(FATAL_ERROR "Cannot find libsystemd on your platform, install it first...")
-endif (NOT ${LIB_LIBSYSTEMD_FOUND})
+endif (NOT LIB_LIBSYSTEMD_FOUND)
 
 set(CACHE_LIBSYSTEMD "libsystemd" CACHE INTERNAL "libsystemd." FORCE)
 set(CACHE_LIBSYSTEMD_LIBRARIES ${LIB_LIBSYSTEMD_LIBRARIES} CACHE INTERNAL "libsystemd." FORCE)

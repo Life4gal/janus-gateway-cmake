@@ -1,8 +1,8 @@
-pkg_check_modules(LIB_LIBAVFORMAT QUIET libavformat)
+pkg_check_modules(LIB_LIBAVFORMAT libavformat)
 
-if (NOT ${LIB_LIBAVFORMAT_FOUND})
+if (NOT LIB_LIBAVFORMAT_FOUND)
 	message(FATAL_ERROR "Cannot find libavformat on your platform, install it first...")
-endif (NOT ${LIB_LIBAVFORMAT_FOUND})
+endif (NOT LIB_LIBAVFORMAT_FOUND)
 
 janus_append_link_libraries(${LIB_LIBAVFORMAT_LIBRARIES})
 janus_append_link_directories(${LIB_LIBAVFORMAT_LIBRARY_DIRS})

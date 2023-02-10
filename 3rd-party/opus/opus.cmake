@@ -3,15 +3,15 @@ function(try_use_opus)
 		return()
 	endif (NOT JANUS_PLUGIN_AUDIO_BRIDGE AND NOT JANUS_PLUGIN_AUDIO_BRIDGE_TRY_USE)
 
-	pkg_check_modules(LIB_OPUS QUIET opus)
+	pkg_check_modules(LIB_OPUS opus)
 
-	if (NOT ${LIB_OPUS_FOUND})
+	if (NOT LIB_OPUS_FOUND)
 		if (JANUS_PLUGIN_AUDIO_BRIDGE)
 			message(FATAL_ERROR "opus not found. See README.md for installation instructions or set JANUS_PLUGIN_AUDIO_BRIDGE off")
 		elseif (JANUS_PLUGIN_AUDIO_BRIDGE_TRY_USE)
 			return()
 		endif (JANUS_PLUGIN_AUDIO_BRIDGE)
-	endif (NOT ${LIB_OPUS_FOUND})
+	endif (NOT LIB_OPUS_FOUND)
 
 	set(CACHE_OPUS "opus" CACHE INTERNAL "opus." FORCE)
 	set(CACHE_OPUS_LIBRARIES ${LIB_OPUS_LIBRARIES} CACHE INTERNAL "opus." FORCE)

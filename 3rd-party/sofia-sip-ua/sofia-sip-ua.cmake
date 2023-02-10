@@ -3,15 +3,15 @@ function(try_use_ssu)
 		return()
 	endif (NOT JANUS_PLUGIN_SIP AND NOT JANUS_PLUGIN_SIP_TRY_USE)
 
-	pkg_check_modules(LIB_SOFIA_SIP_UA QUIET sofia-sip-ua)
+	pkg_check_modules(LIB_SOFIA_SIP_UA sofia-sip-ua)
 
-	if (NOT ${LIB_SOFIA_SIP_UA_FOUND})
+	if (NOT LIB_SOFIA_SIP_UA_FOUND)
 		if (JANUS_PLUGIN_SIP)
 			message(FATAL_ERROR "sofia-sip-ua not found. See README.md for installation instructions or set JANUS_PLUGIN_SIP off")
 		elseif (JANUS_PLUGIN_SIP_TRY_USE)
 			return()
 		endif (JANUS_PLUGIN_SIP)
-	endif (NOT ${LIB_SOFIA_SIP_UA_FOUND})
+	endif (NOT LIB_SOFIA_SIP_UA_FOUND)
 
 	set(CACHE_SOFIA_SIP_UA "sofia-sip-ua" CACHE INTERNAL "sofia-sip-ua." FORCE)
 	set(CACHE_SOFIA_SIP_UA_LIBRARIES ${LIB_SOFIA_SIP_UA_LIBRARIES} CACHE INTERNAL "sofia-sip-ua." FORCE)
