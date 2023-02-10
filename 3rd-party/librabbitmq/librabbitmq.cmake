@@ -16,9 +16,9 @@ function(try_use_rabbitmq)
 	include(CheckLibraryExists)
 
 	CHECK_LIBRARY_EXISTS(
-			${LIB_LIBRABBITMQ_LIBRARIES}
+			librabbitmq
 			amqp_error_string2
-			${LIB_LIBRABBITMQ_LIBRARY_DIRS}
+			"${LIB_LIBRABBITMQ_LIBRARY_DIRS}"
 			LIB_LIBRABBITMQ_HAS_amqp_error_string2
 	)
 

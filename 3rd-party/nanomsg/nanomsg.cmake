@@ -20,9 +20,9 @@ function(try_use_nanomsg)
 	include(CheckLibraryExists)
 
 	CHECK_LIBRARY_EXISTS(
-			${LIB_NANOMSG_LIBRARIES}
+			nanomsg
 			nn_socket
-			${LIB_NANOMSG_LIBRARY_DIRS}
+			"${LIB_NANOMSG_LIBRARY_DIRS}"
 			LIB_NANOMSG_HAS_nn_socket
 	)
 

@@ -14,9 +14,9 @@ janus_append_ld_flags(${LIB_USRSCTP_LDFLAGS})
 include(CheckLibraryExists)
 
 CHECK_LIBRARY_EXISTS(
-		${LIB_USRSCTP_LIBRARIES}
+		usrsctp
 		usrsctp_finish
-		${LIB_USRSCTP_LIBRARY_DIRS}
+		"${LIB_USRSCTP_LIBRARY_DIRS}"
 		LIB_USRSCTP_HAS_usrsctp_finish
 )
 if (LIB_USRSCTP_HAS_usrsctp_finish)
