@@ -569,7 +569,7 @@ if (JANUS_PLUGIN_DUKTAPE OR JANUS_PLUGIN_DUKTAPE_TRY_USE)
 	#janus_append_config_file(${JANUS_CONF_FILES_PATH}/janus.plugin.duktape.jcfg.sample)
 endif (JANUS_PLUGIN_DUKTAPE OR JANUS_PLUGIN_DUKTAPE_TRY_USE)
 
-if (JANUS_PLUGIN_ECHO_TEST)
+if (JANUS_PLUGIN_RECORD_PLAY)
 	janus_append_extra_libraries(
 			# name
 			libjanus_recordplay
@@ -608,7 +608,7 @@ if (JANUS_PLUGIN_ECHO_TEST)
 				COPYONLY
 		)
 	endforeach (file IN LISTS libjanus_recordplay_data_files)
-endif (JANUS_PLUGIN_ECHO_TEST)
+endif (JANUS_PLUGIN_RECORD_PLAY)
 
 # LIB_LUA
 if (JANUS_PLUGIN_LUA OR JANUS_PLUGIN_LUA_TRY_USE)
@@ -665,7 +665,7 @@ if (JANUS_PLUGIN_LUA OR JANUS_PLUGIN_LUA_TRY_USE)
 	endif (DEFINED CACHE{CACHE_LUA})
 endif (JANUS_PLUGIN_LUA OR JANUS_PLUGIN_LUA_TRY_USE)
 
-if (JANUS_PLUGIN_RECORD_PLAY)
+if (JANUS_PLUGIN_ECHO_TEST)
 	janus_append_extra_libraries(
 			# name
 			libjanus_echotest
@@ -687,7 +687,7 @@ if (JANUS_PLUGIN_RECORD_PLAY)
 			# ld_flags
 			""
 	)
-endif (JANUS_PLUGIN_RECORD_PLAY)
+endif (JANUS_PLUGIN_ECHO_TEST)
 
 # LIB_SOFIA-SIP-UA
 if (JANUS_PLUGIN_SIP OR JANUS_PLUGIN_SIP_TRY_USE)
