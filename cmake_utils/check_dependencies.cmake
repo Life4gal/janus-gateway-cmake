@@ -119,7 +119,7 @@ if (JANUS_DATA_CHANNELS)
 endif (JANUS_DATA_CHANNELS)
 
 # LIB_LIBCURL
-if (JANUS_TURN_REST_API OR JANUS_HANDLER_SAMPLE)
+if (JANUS_TURN_REST_API OR JANUS_TRANSPORT_REST_TRY_USE OR JANUS_HANDLER_SAMPLE)
 	include(${JANUS_3RD_PARTY_PATH}/libcurl/libcurl.cmake)
 
 	if (DEFINED CACHE{CACHE_LIBCURL})
@@ -162,7 +162,7 @@ if (JANUS_TURN_REST_API OR JANUS_HANDLER_SAMPLE)
 			)
 		endif (JANUS_HANDLER_SAMPLE)
 	endif (DEFINED CACHE{CACHE_LIBCURL})
-endif (JANUS_TURN_REST_API OR JANUS_HANDLER_SAMPLE)
+endif (JANUS_TURN_REST_API OR JANUS_TRANSPORT_REST_TRY_USE OR JANUS_HANDLER_SAMPLE)
 
 # DOXYGEN AND DOT
 if (JANUS_DOC)
@@ -804,12 +804,33 @@ if (JANUS_PLUGIN_NO_SIP)
 endif (JANUS_PLUGIN_NO_SIP)
 
 if (JANUS_PLUGIN_STREAMING)
-	if (NOT DEFINED CACHE{CACHE_LIBCURL})
-		include(${JANUS_3RD_PARTY_PATH}/libcurl/libcurl.cmake)
-	endif (NOT DEFINED CACHE{CACHE_LIBCURL})
-	if (NOT DEFINED CACHE{CACHE_OGG})
-		include(${JANUS_3RD_PARTY_PATH}/ogg/ogg.cmake)
-	endif (NOT DEFINED CACHE{CACHE_OGG})
+	if (DEFINED CACHE{CACHE_LIBCURL})
+		set(janus_streaming_curl_libraries "$CACHE{CACHE_LIBCURL_LIBRARIES}")
+		set(janus_streaming_curl_directories "$CACHE{CACHE_LIBCURL_DIRECTORIES}")
+		set(janus_streaming_curl_include_directories "$CACHE{CACHE_LIBCURL_INCLUDE_DIRECTORIES}")
+		set(janus_streaming_curl_compile_flags "$CACHE{CACHE_LIBCURL_COMPILE_FLAGS};-DHAVE_LIBCURL")
+		set(janus_streaming_curl_ld_flags "$CACHE{CACHE_LIBCURL_LD_FLAGS}")
+	else ()
+		set(janus_streaming_curl_libraries "")
+		set(janus_streaming_curl_directories "")
+		set(janus_streaming_curl_include_directories "")
+		set(janus_streaming_curl_compile_flags "")
+		set(janus_streaming_curl_ld_flags "")
+	endif (DEFINED CACHE{CACHE_LIBCURL})
+
+	if (DEFINED CACHE{CACHE_OGG})
+		set(janus_streaming_ogg_libraries "$CACHE{CACHE_OGG_LIBRARIES}")
+		set(janus_streaming_ogg_directories "$CACHE{CACHE_OGG_DIRECTORIES}")
+		set(janus_streaming_ogg_include_directories "$CACHE{CACHE_OGG_INCLUDE_DIRECTORIES}")
+		set(janus_streaming_ogg_compile_flags "$CACHE{CACHE_OGG_COMPILE_FLAGS};-DHAVE_LIBOGG")
+		set(janus_streaming_ogg_ld_flags "$CACHE{CACHE_OGG_LD_FLAGS}")
+	else ()
+		set(janus_streaming_ogg_libraries "")
+		set(janus_streaming_ogg_directories "")
+		set(janus_streaming_ogg_include_directories "")
+		set(janus_streaming_ogg_compile_flags "")
+		set(janus_streaming_ogg_ld_flags "")
+	endif (DEFINED CACHE{CACHE_OGG})
 
 	janus_append_extra_libraries(
 			# name
@@ -822,15 +843,15 @@ if (JANUS_PLUGIN_STREAMING)
 			"${JANUS_CONF_FILES_PATH}/janus.plugin.streaming.jcfg.sample"
 
 			# link_libraries
-			"$CACHE{CACHE_LIBCURL_LIBRARIES};$CACHE{CACHE_GIO_LIBRARIES};$CACHE{CACHE_OGG_LIBRARIES};$CACHE{CACHE_SRTP_LIBRARIES}"
+			"$CACHE{CACHE_GIO_LIBRARIES};$CACHE{CACHE_SRTP_LIBRARIES};${janus_streaming_curl_libraries};${janus_streaming_ogg_libraries}"
 			# link_directories
-			"$CACHE{CACHE_LIBCURL_DIRECTORIES};$CACHE{CACHE_GIO_DIRECTORIES};$CACHE{CACHE_OGG_DIRECTORIES};$CACHE{CACHE_SRTP_DIRECTORIES}"
+			"$CACHE{CACHE_GIO_DIRECTORIES};$CACHE{CACHE_SRTP_DIRECTORIES};${janus_streaming_curl_directories};${janus_streaming_ogg_directories}"
 			# include_directories
-			"$CACHE{CACHE_LIBCURL_INCLUDE_DIRECTORIES};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES};$CACHE{CACHE_OGG_INCLUDE_DIRECTORIES};$CACHE{CACHE_SRTP_INCLUDE_DIRECTORIES}"
+			"$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES};$CACHE{CACHE_SRTP_INCLUDE_DIRECTORIES};${janus_streaming_curl_include_directories};${janus_streaming_curl_include_directories}"
 			# compile_flags
-			"$CACHE{CACHE_LIBCURL_COMPILE_FLAGS};-DHAVE_LIBCURL;$CACHE{CACHE_GIO_COMPILE_FLAGS};$CACHE{CACHE_OGG_COMPILE_FLAGS};-DHAVE_LIBOGG;$CACHE{CACHE_SRTP_COMPILE_FLAGS}"
+			"$CACHE{CACHE_GIO_COMPILE_FLAGS};$CACHE{CACHE_SRTP_COMPILE_FLAGS};${janus_streaming_curl_compile_flags};${janus_streaming_ogg_compile_flags}"
 			# ld_flags
-			"$CACHE{CACHE_LIBCURL_LD_FLAGS};$CACHE{CACHE_GIO_LD_FLAGS};$CACHE{CACHE_OGG_LD_FLAGS};$CACHE{CACHE_SRTP_LD_FLAGS}"
+			"$CACHE{CACHE_GIO_LD_FLAGS};$CACHE{CACHE_SRTP_LD_FLAGS};${janus_streaming_curl_ld_flags};${janus_streaming_ogg_ld_flags}"
 	)
 
 	# copy data files
