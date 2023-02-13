@@ -266,6 +266,15 @@ if (JANUS_TRANSPORT_RABBITMQ OR JANUS_HANDLER_RABBITMQ)
 	include(${JANUS_3RD_PARTY_PATH}/librabbitmq/librabbitmq.cmake)
 
 	if (DEFINED CACHE{CACHE_LIBRABBITMQ})
+		# TODO: Maybe we can just cache the version?
+		string(REPLACE "librabbitmq-" "" rabbitmq_version $CACHE{CACHE_LIBRABBITMQ_LIBRARY_NAME})
+
+		if (${rabbitmq_version} VERSION_GREATER_EQUAL "0.12.0")
+			set(janus_rabbitmq_rabbitmq_compile_flags $CACHE{CACHE_LIBRABBITMQ_COMPILE_FLAGS};-DHAVE_RABBITMQ_C_AMQP_H)
+		else ()
+			set(janus_rabbitmq_rabbitmq_compile_flags $CACHE{CACHE_LIBRABBITMQ_COMPILE_FLAGS})
+		endif (${rabbitmq_version} VERSION_GREATER_EQUAL "0.12.0")
+
 		if (JANUS_TRANSPORT_RABBITMQ)
 			janus_append_extra_libraries(
 					# name
@@ -284,7 +293,7 @@ if (JANUS_TRANSPORT_RABBITMQ OR JANUS_HANDLER_RABBITMQ)
 					# include_directories
 					"$CACHE{CACHE_LIBRABBITMQ_INCLUDE_DIRECTORIES};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES}"
 					# compile_flags
-					"$CACHE{CACHE_LIBRABBITMQ_COMPILE_FLAGS};$CACHE{CACHE_GIO_COMPILE_FLAGS}"
+					"${janus_rabbitmq_rabbitmq_compile_flags};$CACHE{CACHE_GIO_COMPILE_FLAGS}"
 					# ld_flags
 					"$CACHE{CACHE_LIBRABBITMQ_LD_FLAGS};$CACHE{CACHE_GIO_LD_FLAGS}"
 			)
@@ -308,7 +317,7 @@ if (JANUS_TRANSPORT_RABBITMQ OR JANUS_HANDLER_RABBITMQ)
 					# include_directories
 					"$CACHE{CACHE_LIBRABBITMQ_INCLUDE_DIRECTORIES};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES}"
 					# compile_flags
-					"$CACHE{CACHE_LIBRABBITMQ_COMPILE_FLAGS};$CACHE{CACHE_GIO_COMPILE_FLAGS}"
+					"${janus_rabbitmq_rabbitmq_compile_flags};$CACHE{CACHE_GIO_COMPILE_FLAGS}"
 					# ld_flags
 					"$CACHE{CACHE_LIBRABBITMQ_LD_FLAGS};$CACHE{CACHE_GIO_LD_FLAGS}"
 			)
