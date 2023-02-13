@@ -485,12 +485,6 @@ if (JANUS_LOGGER_JSON)
 	)
 endif (JANUS_LOGGER_JSON)
 
-# LIB_LIBSYSTEMD
-if (JANUS_SYSTEMD_SOCKETS)
-	include(${JANUS_3RD_PARTY_PATH}/libsystemd/libsystemd.cmake)
-	janus_append_compile_definitions(HAVE_LIBSYSTEMD)
-endif (JANUS_SYSTEMD_SOCKETS)
-
 # JANUS_TRANSPORT_UNIX_SOCKETS
 function(janus_check_unix_sockets)
 	if (JANUS_TRANSPORT_UNIX_SOCKETS)
@@ -514,7 +508,25 @@ function(janus_check_unix_sockets)
 		if (NOT ${has_unix_sockets})
 			message(FATAL_ERROR "SOCK_SEQPACKET not defined in your OS. Set JANUS_TRANSPORT_UNIX_SOCKETS off")
 		else ()
+			# This macro definition doesn't seem to do anything?
 			janus_append_compile_definitions(HAVE_PFUNIX)
+
+			# LIB_LIBSYSTEMD
+			if (JANUS_SYSTEMD_SOCKETS)
+				include(${JANUS_3RD_PARTY_PATH}/libsystemd/libsystemd.cmake)
+
+				set(janus_pfunix_systemd_libraries "$CACHE{CACHE_LIBSYSTEMD_LIBRARIES}")
+				set(janus_pfunix_systemd_directories "$CACHE{CACHE_LIBSYSTEMD_DIRECTORIES}")
+				set(janus_pfunix_systemd_include_directories "$CACHE{CACHE_LIBSYSTEMD_INCLUDE_DIRECTORIES}")
+				set(janus_pfunix_systemd_compile_flags "$CACHE{CACHE_LIBSYSTEMD_COMPILE_FLAGS};-DHAVE_LIBSYSTEMD")
+				set(janus_pfunix_systemd_ld_flags "$CACHE{CACHE_LIBSYSTEMD_LD_FLAGS}")
+			else ()
+				set(janus_pfunix_systemd_libraries "")
+				set(janus_pfunix_systemd_directories "")
+				set(janus_pfunix_systemd_include_directories "")
+				set(janus_pfunix_systemd_compile_flags "")
+				set(janus_pfunix_systemd_ld_flags "")
+			endif (JANUS_SYSTEMD_SOCKETS)
 
 			janus_append_extra_libraries(
 					# name
@@ -527,15 +539,15 @@ function(janus_check_unix_sockets)
 					"${JANUS_CONF_FILES_PATH}/janus.transport.pfunix.jcfg.sample"
 
 					# link_libraries
-					"$CACHE{CACHE_LIBSYSTEMD_LIBRARIES};$CACHE{CACHE_GIO_LIBRARIES}"
+					"${janus_pfunix_systemd_libraries};$CACHE{CACHE_GIO_LIBRARIES}"
 					# link_directories
-					"$CACHE{CACHE_LIBSYSTEMD_DIRECTORIES};$CACHE{CACHE_GIO_DIRECTORIES}"
+					"${janus_pfunix_systemd_directories};$CACHE{CACHE_GIO_DIRECTORIES}"
 					# include_directories
-					"$CACHE{CACHE_LIBSYSTEMD_INCLUDE_DIRECTORIES};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES}"
+					"${janus_pfunix_systemd_include_directories};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES}"
 					# compile_flags
-					"$CACHE{CACHE_LIBSYSTEMD_COMPILE_FLAGS};$CACHE{CACHE_GIO_COMPILE_FLAGS}"
+					"${janus_pfunix_systemd_compile_flags};$CACHE{CACHE_GIO_COMPILE_FLAGS}"
 					# ld_flags
-					"$CACHE{CACHE_LIBSYSTEMD_LD_FLAGS};$CACHE{CACHE_GIO_LD_FLAGS}"
+					"${janus_pfunix_systemd_ld_flags};$CACHE{CACHE_GIO_LD_FLAGS}"
 			)
 		endif (NOT ${has_unix_sockets})
 	endif (JANUS_TRANSPORT_UNIX_SOCKETS)
