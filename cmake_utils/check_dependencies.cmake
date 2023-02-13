@@ -173,6 +173,15 @@ if (JANUS_TRANSPORT_REST OR JANUS_TRANSPORT_REST_TRY_USE)
 	include(${JANUS_3RD_PARTY_PATH}/libmicrohttpd/libmicrohttpd.cmake)
 
 	if (DEFINED CACHE{CACHE_LIBMICROHTTPD})
+		# TODO: Maybe we can just cache the version?
+		string(REPLACE "libmicrohttpd-" "" mhd_version $CACHE{CACHE_LIBMICROHTTPD_LIBRARY_NAME})
+
+		if (${mhd_version} VERSION_GREATER_EQUAL "0.9.71")
+			set(janus_http_hmd_compile_flags $CACHE{CACHE_LIBMICROHTTPD_COMPILE_FLAGS};-DHAVE_ENUM_MHD_RESULT)
+		else ()
+			set(janus_http_hmd_compile_flags $CACHE{CACHE_LIBMICROHTTPD_COMPILE_FLAGS})
+		endif (${mhd_version} VERSION_GREATER_EQUAL "0.9.71")
+
 		janus_append_extra_libraries(
 				# name
 				janus_http
@@ -190,7 +199,7 @@ if (JANUS_TRANSPORT_REST OR JANUS_TRANSPORT_REST_TRY_USE)
 				# include_directories
 				"$CACHE{CACHE_LIBMICROHTTPD_INCLUDE_DIRECTORIES};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES}"
 				# compile_flags
-				"$CACHE{CACHE_LIBMICROHTTPD_COMPILE_FLAGS};$CACHE{CACHE_GIO_COMPILE_FLAGS}"
+				"${janus_http_hmd_compile_flags};$CACHE{CACHE_GIO_COMPILE_FLAGS}"
 				# ld_flags
 				"$CACHE{CACHE_LIBMICROHTTPD_LD_FLAGS};$CACHE{CACHE_GIO_LD_FLAGS}"
 		)
