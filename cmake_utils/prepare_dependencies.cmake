@@ -13,6 +13,8 @@ set(JANUS_CONF_FILES "" CACHE INTERNAL "janus conf file" FORCE)
 set(JANUS_EXTRA_LIBRARIES "" CACHE INTERNAL "janus extra libraries" FORCE)
 set(JANUS_EXTRA_LIBRARIES_SOURCE_FILES "" CACHE INTERNAL "janus extra libraries source files" FORCE)
 set(JANUS_EXTRA_LIBRARIES_CONF_FILES "" CACHE INTERNAL "janus extra libraries conf files" FORCE)
+set(JANUS_EXTRA_LIBRARIES_COMMON_COMPILE_FLAGS "" CACHE INTERNAL "janus extra libraries common compile flags" FORCE)
+set(JANUS_EXTRA_LIBRARIES_COMMON_LD_FLAGS "" CACHE INTERNAL "janus extra libraries common ld flags" FORCE)
 
 function(janus_verbose_message message)
 	#message(${message})
@@ -139,6 +141,26 @@ function(janus_print_all_dependencies_info)
 	foreach (file IN LISTS JANUS_EXTRA_LIBRARIES_CONF_FILES)
 		message(STATUS "-->\t\t ${file}")
 	endforeach (file IN LISTS JANUS_EXTRA_LIBRARIES_CONF_FILES)
+
+	message(STATUS "=======================================")
+
+	message(STATUS "EXTRA LIBRARIES COMMON COMPILE FLAGS:")
+	#foreach (flag IN LISTS $CACHE{JANUS_EXTRA_LIBRARIES_COMMON_COMPILE_FLAGS})
+	#	message(STATUS "-->\t\t ${flag}")
+	#endforeach (flag IN LISTS $CACHE{JANUS_EXTRA_LIBRARIES_COMMON_COMPILE_FLAGS})
+	foreach (flag IN LISTS JANUS_EXTRA_LIBRARIES_COMMON_COMPILE_FLAGS)
+		message(STATUS "-->\t\t ${flag}")
+	endforeach (flag IN LISTS JANUS_EXTRA_LIBRARIES_COMMON_COMPILE_FLAGS)
+
+	message(STATUS "=======================================")
+
+	message(STATUS "EXTRA LIBRARIES CMMON LD FLAGS:")
+	#foreach (flag IN LISTS $CACHE{JANUS_EXTRA_LIBRARIES_COMMON_COMPILE_FLAGS})
+	#	message(STATUS "-->\t\t ${flag}")
+	#endforeach (flag IN LISTS $CACHE{JANUS_EXTRA_LIBRARIES_COMMON_COMPILE_FLAGS})
+	foreach (flag IN LISTS JANUS_EXTRA_LIBRARIES_COMMON_LD_FLAGS)
+		message(STATUS "-->\t\t ${flag}")
+	endforeach (flag IN LISTS JANUS_EXTRA_LIBRARIES_COMMON_LD_FLAGS)
 
 	message(STATUS "=======================================")
 endfunction(janus_print_all_dependencies_info)
@@ -340,6 +362,11 @@ function(
 				${compile_flags}
 		)
 	endif (NOT ${compile_flags_length} EQUAL 0)
+	target_compile_options(
+			${name}
+			PRIVATE
+			${JANUS_EXTRA_LIBRARIES_COMMON_COMPILE_FLAGS}
+	)
 
 	list(LENGTH ld_flags ld_flags_length)
 	if (NOT ${ld_flags_length} EQUAL 0)
@@ -349,6 +376,11 @@ function(
 				${ld_flags}
 		)
 	endif (NOT ${ld_flags_length} EQUAL 0)
+	target_link_options(
+			${name}
+			PRIVATE
+			${JANUS_EXTRA_LIBRARIES_COMMON_LD_FLAGS}
+	)
 endfunction(
 		janus_append_extra_libraries
 		name

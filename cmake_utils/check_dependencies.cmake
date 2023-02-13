@@ -95,6 +95,9 @@ endif (JANUS_DTLS_SET_TIMEOUT)
 if (JANUS_PTHREAD_MUTEX)
 	message(STATUS "Will use pthread_mutex instead of GMutex")
 	janus_append_compile_definitions(USE_PTHREAD_MUTEX)
+
+	set(JANUS_EXTRA_LIBRARIES_COMMON_COMPILE_FLAGS ${JANUS_TRANSPORT_COMPILE_FLAGS} "-DUSE_PTHREAD_MUTEX" CACHE INTERNAL "janus extra transport compile flags" FORCE)
+	set(JANUS_EXTRA_LIBRARIES_COMMON_LD_FLAGS ${JANUS_TRANSPORT_LD_FLAGS} "-lpthread" CACHE INTERNAL "janus extra transport ld flags" FORCE)
 endif (JANUS_PTHREAD_MUTEX)
 
 # LIB_DL
