@@ -876,6 +876,20 @@ if (JANUS_PLUGIN_STREAMING)
 endif (JANUS_PLUGIN_STREAMING)
 
 if (JANUS_PLUGIN_TEXT_ROOM)
+	if (DEFINED CACHE{CACHE_LIBCURL})
+		set(janus_textroom_curl_libraries "$CACHE{CACHE_LIBCURL_LIBRARIES}")
+		set(janus_textroom_curl_directories "$CACHE{CACHE_LIBCURL_DIRECTORIES}")
+		set(janus_textroom_curl_include_directories "$CACHE{CACHE_LIBCURL_INCLUDE_DIRECTORIES}")
+		set(janus_textroom_curl_compile_flags "$CACHE{CACHE_LIBCURL_COMPILE_FLAGS};-DHAVE_LIBCURL")
+		set(janus_textroom_curl_ld_flags "$CACHE{CACHE_LIBCURL_LD_FLAGS}")
+	else ()
+		set(janus_textroom_curl_libraries "")
+		set(janus_textroom_curl_directories "")
+		set(janus_textroom_curl_include_directories "")
+		set(janus_textroom_curl_compile_flags "")
+		set(janus_textroom_curl_ld_flags "")
+	endif (DEFINED CACHE{CACHE_LIBCURL})
+
 	janus_append_extra_libraries(
 			# name
 			janus_textroom
@@ -887,15 +901,15 @@ if (JANUS_PLUGIN_TEXT_ROOM)
 			"${JANUS_CONF_FILES_PATH}/janus.plugin.textroom.jcfg.sample"
 
 			# link_libraries
-			"$CACHE{CACHE_GIO_LIBRARIES}"
+			"$CACHE{CACHE_GIO_LIBRARIES};${janus_textroom_curl_libraries}"
 			# link_directories
-			"$CACHE{CACHE_GIO_DIRECTORIES}"
+			"$CACHE{CACHE_GIO_DIRECTORIES};${janus_textroom_curl_directories}"
 			# include_directories
-			"$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES}"
+			"$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES};${janus_textroom_curl_include_directories}"
 			# compile_flags
-			"$CACHE{CACHE_GIO_COMPILE_FLAGS}"
+			"$CACHE{CACHE_GIO_COMPILE_FLAGS};${janus_textroom_curl_compile_flags}"
 			# ld_flags
-			"$CACHE{CACHE_GIO_LD_FLAGS}"
+			"$CACHE{CACHE_GIO_LD_FLAGS};${janus_textroom_curl_ld_flags}"
 	)
 endif (JANUS_PLUGIN_TEXT_ROOM)
 
