@@ -963,10 +963,6 @@ endif (JANUS_PLUGIN_VIDEO_ROOM)
 
 # LIB_OGG
 if (JANUS_PLUGIN_VOICE_MAIL OR JANUS_PLUGIN_VOICE_MAIL_TRY_USE)
-	if (NOT DEFINED CACHE{CACHE_OGG})
-		include(${JANUS_3RD_PARTY_PATH}/ogg/ogg.cmake)
-	endif (NOT DEFINED CACHE{CACHE_OGG})
-
 	if (DEFINED CACHE{CACHE_OGG})
 		janus_append_extra_libraries(
 				# name
