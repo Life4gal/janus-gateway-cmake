@@ -554,9 +554,29 @@ function(janus_check_unix_sockets)
 endfunction(janus_check_unix_sockets)
 janus_check_unix_sockets()
 
+# TODO: ogg support is optional, but if we support ogg, other plugins can also use ogg, which requires us to check in advance.
+# LIB_OGG
+if (JANUS_PLUGIN_VOICE_MAIL OR JANUS_PLUGIN_VOICE_MAIL_TRY_USE)
+	include(${JANUS_3RD_PARTY_PATH}/ogg/ogg.cmake)
+endif (JANUS_PLUGIN_VOICE_MAIL OR JANUS_PLUGIN_VOICE_MAIL_TRY_USE)
+
 # LIB_OPUS
 if (JANUS_PLUGIN_AUDIO_BRIDGE OR JANUS_PLUGIN_AUDIO_BRIDGE_TRY_USE)
 	include(${JANUS_3RD_PARTY_PATH}/opus/opus.cmake)
+
+	if (DEFINED CACHE{CACHE_OGG})
+		set(janus_audiobridge_ogg_libraries "$CACHE{CACHE_OGG_LIBRARIES}")
+		set(janus_audiobridge_ogg_directories "$CACHE{CACHE_OGG_DIRECTORIES}")
+		set(janus_audiobridge_ogg_include_directories "$CACHE{CACHE_OGG_INCLUDE_DIRECTORIES}")
+		set(janus_audiobridge_ogg_compile_flags "$CACHE{CACHE_OGG_COMPILE_FLAGS};-DHAVE_LIBOGG")
+		set(janus_audiobridge_ogg_ld_flags "$CACHE{CACHE_OGG_LD_FLAGS}")
+	else ()
+		set(janus_audiobridge_ogg_libraries "")
+		set(janus_audiobridge_ogg_directories "")
+		set(janus_audiobridge_ogg_include_directories "")
+		set(janus_audiobridge_ogg_compile_flags "")
+		set(janus_audiobridge_ogg_ld_flags "")
+	endif (DEFINED CACHE{CACHE_OGG})
 
 	if (DEFINED CACHE{CACHE_OPUS})
 		janus_append_extra_libraries(
@@ -570,15 +590,15 @@ if (JANUS_PLUGIN_AUDIO_BRIDGE OR JANUS_PLUGIN_AUDIO_BRIDGE_TRY_USE)
 				"${JANUS_CONF_FILES_PATH}/janus.plugin.audiobridge.jcfg.sample"
 
 				# link_libraries
-				"$CACHE{CACHE_OPUS_LIBRARIES};$CACHE{CACHE_GIO_LIBRARIES};$CACHE{CACHE_SRTP_LIBRARIES}"
+				"$CACHE{CACHE_OPUS_LIBRARIES};$CACHE{CACHE_GIO_LIBRARIES};$CACHE{CACHE_SRTP_LIBRARIES};${janus_audiobridge_ogg_libraries}"
 				# link_directories
-				"$CACHE{CACHE_OPUS_DIRECTORIES};$CACHE{CACHE_GIO_DIRECTORIES};$CACHE{CACHE_SRTP_DIRECTORIES}"
+				"$CACHE{CACHE_OPUS_DIRECTORIES};$CACHE{CACHE_GIO_DIRECTORIES};$CACHE{CACHE_SRTP_DIRECTORIES};${janus_audiobridge_ogg_directories}"
 				# include_directories
-				"$CACHE{CACHE_OPUS_INCLUDE_DIRECTORIES};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES};$CACHE{CACHE_SRTP_INCLUDE_DIRECTORIES}"
+				"$CACHE{CACHE_OPUS_INCLUDE_DIRECTORIES};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES};$CACHE{CACHE_SRTP_INCLUDE_DIRECTORIES};${janus_audiobridge_ogg_include_directories}"
 				# compile_flags
-				"$CACHE{CACHE_OPUS_COMPILE_FLAGS};$CACHE{CACHE_GIO_COMPILE_FLAGS};$CACHE{CACHE_SRTP_COMPILE_FLAGS}"
+				"$CACHE{CACHE_OPUS_COMPILE_FLAGS};$CACHE{CACHE_GIO_COMPILE_FLAGS};$CACHE{CACHE_SRTP_COMPILE_FLAGS};${janus_audiobridge_ogg_compile_flags}"
 				# ld_flags
-				"$CACHE{CACHE_OPUS_LD_FLAGS};$CACHE{CACHE_GIO_LD_FLAGS};$CACHE{CACHE_SRTP_LD_FLAGS}"
+				"$CACHE{CACHE_OPUS_LD_FLAGS};$CACHE{CACHE_GIO_LD_FLAGS};$CACHE{CACHE_SRTP_LD_FLAGS};${janus_audiobridge_ogg_ld_flags}"
 		)
 	endif (DEFINED CACHE{CACHE_OPUS})
 endif (JANUS_PLUGIN_AUDIO_BRIDGE OR JANUS_PLUGIN_AUDIO_BRIDGE_TRY_USE)
