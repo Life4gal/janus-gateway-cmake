@@ -71,13 +71,32 @@ function(prepare_header_path)
 				continue()
 			endif (this_line_parent_folder_matched)
 
-			# include "xxx.h" --> include <category/xxx.h>
-			# note: must be in a nested folder. (and not the top-level directory `src`)
+			# There are two possible cases about include "xxx.h"
+			#   1. include "xxx.h" --> include <category/xxx.h>
+			#   2. include "xxx.h" --> include <xxx.h> (system include path)
 			string(REGEX MATCH "^#include[ ]*\"(.*)[.]h\"(.*)$" this_line_current_folder_matched "${line}")
 			if (this_line_current_folder_matched)
+				set(include_header_path "${JANUS_HEADER_FILES_PATH}/${folder_name}/${CMAKE_MATCH_1}.h")
+
+				# case 1:
+				#   must be in a nested folder. (and not the top-level directory `src`)
+				#   target file must exists.
+				if (EXISTS ${include_header_path})
+					# replace
+					# message("0: ${CMAKE_MATCH_0} -- 1: ${${CMAKE_MATCH_1}}")
+					string(REGEX REPLACE "^#include[ ]*\"(.*)[.]h\"(.*)$" "#include <${folder_name}/\\1.h> \\2" out_line "${line}")
+					# message("${line} --> ${out_line}")
+					# append
+					do_append(${out_line})
+
+					continue()
+				endif (EXISTS ${include_header_path})
+
+				# case 2:
+				#   just replace `""` to `<>`
 				# replace
 				# message("0: ${CMAKE_MATCH_0} -- 1: ${${CMAKE_MATCH_1}}")
-				string(REGEX REPLACE "^#include[ ]*\"(.*)[.]h\"(.*)$" "#include <${folder_name}/\\1.h> \\2" out_line "${line}")
+				string(REGEX REPLACE "^#include[ ]*\"(.*)[.]h\"(.*)$" "#include <\\1.h> \\2" out_line "${line}")
 				# message("${line} --> ${out_line}")
 				# append
 				do_append(${out_line})
