@@ -66,5 +66,7 @@ todo
 == License
 see link:LICENSE[License].
 
+> **Note well:** This license is for this project only, for the original project (in this case `janus-gateway`), please follow its corresponding license. This project does not have any warranty.
+
 == Off Topic
 Any contributions are welcome, and if you have any questions, please submit an issue.
