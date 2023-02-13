@@ -113,15 +113,6 @@ janus_append_include_directories($CACHE{CACHE_SRTP_INCLUDE_DIRECTORIES})
 janus_append_compile_flags($CACHE{CACHE_SRTP_COMPILE_FLAGS})
 janus_append_ld_flags($CACHE{CACHE_SRTP_LD_FLAGS})
 
-# LIB_LIBCURL
-include(${JANUS_3RD_PARTY_PATH}/libcurl/libcurl.cmake)
-janus_append_link_libraries($CACHE{CACHE_LIBCURL_LIBRARIES})
-janus_append_link_directories($CACHE{CACHE_LIBCURL_DIRECTORIES})
-janus_append_link_libraries_name($CACHE{CACHE_LIBCURL_LIBRARY_NAME})
-janus_append_include_directories($CACHE{CACHE_LIBCURL_INCLUDE_DIRECTORIES})
-janus_append_compile_flags($CACHE{CACHE_LIBCURL_COMPILE_FLAGS})
-janus_append_ld_flags($CACHE{CACHE_LIBCURL_LD_FLAGS})
-
 # LIB_USRSCTP
 if (JANUS_DATA_CHANNELS)
 	include(${JANUS_3RD_PARTY_PATH}/usrsctp/usrsctp.cmake)
@@ -129,30 +120,47 @@ endif (JANUS_DATA_CHANNELS)
 
 # LIB_LIBCURL
 if (JANUS_TURN_REST_API OR JANUS_HANDLER_SAMPLE)
+	include(${JANUS_3RD_PARTY_PATH}/libcurl/libcurl.cmake)
+
 	if (DEFINED CACHE{CACHE_LIBCURL})
-		set(janus_sampleevh_ld_flags $CACHE{CACHE_LIBCURL_LD_FLAGS} $CACHE{CACHE_GIO_LD_FLAGS} "-lm")
+		if (JANUS_TURN_REST_API)
+			janus_append_compile_definitions(HAVE_TURNRESTAPI)
 
-		janus_append_extra_libraries(
-				# name
-				janus_sampleevh
-				# source
-				"${JANUS_SOURCE_FILES_PATH}/events/janus_sampleevh.c"
-				# dest_path
-				"${JANUS_INSTALL_EVENT_DIR}"
-				# config_path
-				"${JANUS_CONF_FILES_PATH}/janus.eventhandler.sampleevh.jcfg.sample"
+			janus_append_link_libraries($CACHE{CACHE_LIBCURL_LIBRARIES})
+			janus_append_link_directories($CACHE{CACHE_LIBCURL_DIRECTORIES})
+			janus_append_link_libraries_name($CACHE{CACHE_LIBCURL_LIBRARY_NAME})
+			janus_append_include_directories($CACHE{CACHE_LIBCURL_INCLUDE_DIRECTORIES})
+			janus_append_compile_flags($CACHE{CACHE_LIBCURL_COMPILE_FLAGS})
+			janus_append_ld_flags($CACHE{CACHE_LIBCURL_LD_FLAGS})
+		endif (JANUS_TURN_REST_API)
 
-				# link_libraries
-				"$CACHE{CACHE_LIBCURL_LIBRARIES};$CACHE{CACHE_GIO_LIBRARIES}"
-				# link_directories
-				"$CACHE{CACHE_LIBCURL_DIRECTORIES};$CACHE{CACHE_GIO_DIRECTORIES}"
-				# include_directories
-				"$CACHE{CACHE_LIBCURL_INCLUDE_DIRECTORIES};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES}"
-				# compile_flags
-				"$CACHE{CACHE_LIBCURL_COMPILE_FLAGS};$CACHE{CACHE_GIO_COMPILE_FLAGS}"
-				# ld_flags
-				"${janus_sampleevh_ld_flags}"
-		)
+		if (JANUS_HANDLER_SAMPLE)
+			janus_append_compile_definitions(HAVE_SAMPLEEVH)
+
+			set(janus_sampleevh_ld_flags $CACHE{CACHE_LIBCURL_LD_FLAGS} $CACHE{CACHE_GIO_LD_FLAGS} "-lm")
+
+			janus_append_extra_libraries(
+					# name
+					janus_sampleevh
+					# source
+					"${JANUS_SOURCE_FILES_PATH}/events/janus_sampleevh.c"
+					# dest_path
+					"${JANUS_INSTALL_EVENT_DIR}"
+					# config_path
+					"${JANUS_CONF_FILES_PATH}/janus.eventhandler.sampleevh.jcfg.sample"
+
+					# link_libraries
+					"$CACHE{CACHE_LIBCURL_LIBRARIES};$CACHE{CACHE_GIO_LIBRARIES}"
+					# link_directories
+					"$CACHE{CACHE_LIBCURL_DIRECTORIES};$CACHE{CACHE_GIO_DIRECTORIES}"
+					# include_directories
+					"$CACHE{CACHE_LIBCURL_INCLUDE_DIRECTORIES};$CACHE{CACHE_GIO_INCLUDE_DIRECTORIES}"
+					# compile_flags
+					"$CACHE{CACHE_LIBCURL_COMPILE_FLAGS};$CACHE{CACHE_GIO_COMPILE_FLAGS}"
+					# ld_flags
+					"${janus_sampleevh_ld_flags}"
+			)
+		endif (JANUS_HANDLER_SAMPLE)
 	endif (DEFINED CACHE{CACHE_LIBCURL})
 endif (JANUS_TURN_REST_API OR JANUS_HANDLER_SAMPLE)
 
