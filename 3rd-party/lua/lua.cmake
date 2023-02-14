@@ -7,7 +7,10 @@ function(try_use_lua)
 	pkg_check_modules(LIB_LUA QUIET lua)
 
 	if (NOT LIB_LUA_FOUND)
-		find_system_library_inner(lua)
+		find_system_library(
+				lua
+				INNER
+		)
 
 		if (NOT ${LIB_LUA_FOUND})
 			if (JANUS_PLUGIN_LUA)
