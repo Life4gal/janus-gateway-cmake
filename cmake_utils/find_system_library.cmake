@@ -57,10 +57,22 @@ function(
 	set(
 			SEARCH_PATH
 			"/usr/lib/${CMAKE_SYSTEM_PROCESSOR}-linux-gnu"
-			"${FSL_EXTRA_PATH}"
 	)
 
+	if (DEFINED FSL_EXTRA_PATH)
+		set(
+				SEARCH_PATH
+				"${SEARCH_PATH}"
+				"${FSL_EXTRA_PATH}"
+		)
+	endif (DEFINED FSL_EXTRA_PATH)
+
 	foreach (path IN LISTS SEARCH_PATH)
+		if (NOT EXISTS ${path})
+			message(WARNING "Path [${path}] not exists, ignore it...")
+			continue()
+		endif (NOT EXISTS ${path})
+
 		message(STATUS "Searching [${name}] in [${path}]...")
 
 		# get all so
@@ -120,10 +132,30 @@ function(
 			set(LIB_${upper_name}_LIBRARIES ${name} PARENT_SCOPE)
 			set(LIB_${upper_name}_VERSION ${so_version} PARENT_SCOPE)
 			set(LIB_${upper_name}_LIBRARY_DIRS ${path} PARENT_SCOPE)
+
 			# TODO
-			set(LIB_${upper_name}_INCLUDE_DIRS "/usr/include;/usr/include/${name};/usr/include/${name_with_version}" PARENT_SCOPE)
+			set(
+					include_dirs
+					"/usr/include"
+			)
+			if (EXISTS "/usr/include/${name}")
+				set(
+						include_dirs
+						"${include_dirs}"
+						"/usr/include/${name}"
+				)
+			endif (EXISTS "/usr/include/${name}")
+			if (EXISTS "/usr/include/${name_with_version}")
+				set(
+						include_dirs
+						"${include_dirs}"
+						"/usr/include/${name_with_version}"
+				)
+			endif (EXISTS "/usr/include/${name_with_version}")
+
+			set(LIB_${upper_name}_INCLUDE_DIRS "${include_dirs}" PARENT_SCOPE)
 			set(LIB_${upper_name}_CFLAGS "" PARENT_SCOPE)
-			set(LIB_${upper_name}_LDFLAGS "-l${name}" PARENT_SCOPE)
+			set(LIB_${upper_name}_LDFLAGS "-l${name_with_version}" PARENT_SCOPE)
 
 			# add library
 			add_library(
@@ -173,8 +205,28 @@ function(
 			set(LIB_${upper_name}_LIBRARIES ${name} PARENT_SCOPE)
 			set(LIB_${upper_name}_VERSION ${so_version} PARENT_SCOPE)
 			set(LIB_${upper_name}_LIBRARY_DIRS ${path} PARENT_SCOPE)
+
 			# TODO
-			set(LIB_${upper_name}_INCLUDE_DIRS "/usr/include;/usr/include/${name}" PARENT_SCOPE)
+			set(
+					include_dirs
+					"/usr/include"
+			)
+			if (EXISTS "/usr/include/${name}")
+				set(
+						include_dirs
+						"${include_dirs}"
+						"/usr/include/${name}"
+				)
+			endif (EXISTS "/usr/include/${name}")
+			if (EXISTS "/usr/include/${name}${so_version}")
+				set(
+						include_dirs
+						"${include_dirs}"
+						"/usr/include/${name}${so_version}"
+				)
+			endif (EXISTS "/usr/include/${name}${so_version}")
+
+			set(LIB_${upper_name}_INCLUDE_DIRS "${include_dirs}" PARENT_SCOPE)
 			set(LIB_${upper_name}_CFLAGS "" PARENT_SCOPE)
 			set(LIB_${upper_name}_LDFLAGS "-l${name}" PARENT_SCOPE)
 
@@ -197,10 +249,14 @@ function(
 	endforeach (path IN LISTS SEARCH_PATH)
 
 	if (${FSL_REQUIRED})
-		message(FATAL_ERROR "Cannot find library ${name} in [${SEARCH_PATH}]...")
+		set(message_level FATAL_ERROR)
+	else ()
+		set(message_level STATUS)
 	endif (${FSL_REQUIRED})
+
+	message(${message_level} "Cannot find library [${name}] in [${SEARCH_PATH}]...")
 endfunction(
 		find_system_library
-		type
 		name
+		type
 )
