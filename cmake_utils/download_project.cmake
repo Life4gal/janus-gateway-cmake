@@ -1,4 +1,4 @@
-function(download_project)
+function(download_project_do_download)
 	set(archive_version ${PROJECT_VERSION})
 	set(archive_name janus-gateway)
 	set(archive_name_with_postfix ${archive_name}-${archive_version}.zip)
@@ -49,19 +49,14 @@ function(download_project)
 		message(STATUS "The target folder(${dest_folder}) already exists, no need to extract archive. (Please delete the original folder if you need to update)")
 		return()
 	endif (NOT EXISTS ${dest_folder})
+endfunction(download_project_do_download)
 
-	function(copy_verbose_message message)
-		# message(${message})
-		message(VERBOSE ${message})
-	endfunction(copy_verbose_message message)
+function(download_project_do_message message)
+	# message(${message})
+	message(VERBOSE ${message})
+endfunction(download_project_do_message message)
 
-	# =============================================
-	# COPY
-	# =============================================
-
-	# TODO: How do we notify `prepare_header_path.cmake` to reprocess all files if a user deletes the folder and wants us to update all source files?
-	set(JANUS_PROJECT_FILES_RECOPY_FROM_SOURCE ON CACHE INTERNAL "Indicates that the current source file has been overwritten and that the necessary processing needs to be done again." FORCE)
-
+function(download_project_do_copy_source_files)
 	# =============================================
 	# HEADERS & SOURCES & PLUGINS
 	# =============================================
@@ -76,7 +71,7 @@ function(download_project)
 
 			${source_file_path}/*.h
 	)
-	copy_verbose_message("The header files to be copied: ${HEADER_FILES}")
+	download_project_do_message("The header files to be copied: ${HEADER_FILES}")
 
 	file(
 			GLOB_RECURSE
@@ -85,7 +80,7 @@ function(download_project)
 
 			${source_file_path}/*.c
 	)
-	copy_verbose_message("The source files to be copied: ${SOURCE_FILES}")
+	download_project_do_message("The source files to be copied: ${SOURCE_FILES}")
 
 	# plugin data files
 	file(
@@ -100,7 +95,7 @@ function(download_project)
 	foreach (header_file IN LISTS HEADER_FILES)
 		file(RELATIVE_PATH relative_header_file ${source_file_path} ${header_file})
 
-		copy_verbose_message("Copying file from [${header_file}] to [${JANUS_HEADER_FILES_PATH}/${relative_header_file}]...")
+		download_project_do_message("Copying file from [${header_file}] to [${JANUS_HEADER_FILES_PATH}/${relative_header_file}]...")
 		configure_file(
 				${header_file}
 				${JANUS_HEADER_FILES_PATH}/${relative_header_file}
@@ -111,7 +106,7 @@ function(download_project)
 	foreach (source_file IN LISTS SOURCE_FILES)
 		file(RELATIVE_PATH relative_source_file ${source_file_path} ${source_file})
 
-		copy_verbose_message("Copying file from [${source_file}] to [${JANUS_SOURCE_FILES_PATH}/${relative_source_file}]...")
+		download_project_do_message("Copying file from [${source_file}] to [${JANUS_SOURCE_FILES_PATH}/${relative_source_file}]...")
 		configure_file(
 				${source_file}
 				${JANUS_SOURCE_FILES_PATH}/${relative_source_file}
@@ -122,14 +117,16 @@ function(download_project)
 	foreach (plugin_data_file IN LISTS PLUGIN_DATA_FILES)
 		file(RELATIVE_PATH relative_plugin_data_file ${source_file_path} ${plugin_data_file})
 
-		copy_verbose_message("Copying file from [${plugin_data_file}] to [${JANUS_SOURCE_FILES_PATH}/${relative_plugin_data_file}]...")
+		download_project_do_message("Copying file from [${plugin_data_file}] to [${JANUS_SOURCE_FILES_PATH}/${relative_plugin_data_file}]...")
 		configure_file(
 				${plugin_data_file}
 				${JANUS_SOURCE_FILES_PATH}/${relative_plugin_data_file}
 				COPYONLY
 		)
 	endforeach (plugin_data_file IN LISTS PLUGIN_DATA_FILES)
+endfunction(download_project_do_copy_source_files)
 
+function(download_project_do_copy_conf)
 	# =============================================
 	# CONFIGS
 	# =============================================
@@ -144,7 +141,7 @@ function(download_project)
 
 			${conf_file_path}/*.*
 	)
-	copy_verbose_message("The config files to be copied: ${CONF_FILES}")
+	download_project_do_message("The config files to be copied: ${CONF_FILES}")
 
 	foreach (conf_file IN LISTS CONF_FILES)
 		file(RELATIVE_PATH relative_conf_file ${conf_file_path} ${conf_file})
@@ -173,7 +170,7 @@ function(download_project)
 				file(WRITE ${conf_file} ${file_content})
 
 				# copy real file
-				copy_verbose_message("Copying file from [${conf_file}] to [${JANUS_CONF_FILES_PATH}/${real_conf_file}]...")
+				download_project_do_message("Copying file from [${conf_file}] to [${JANUS_CONF_FILES_PATH}/${real_conf_file}]...")
 				configure_file(
 						${conf_file}
 						${JANUS_CONF_FILES_PATH}/${real_conf_file}
@@ -240,14 +237,14 @@ function(download_project)
 			file(RENAME ${temp_file_path} ${conf_file})
 
 			# copy real file
-			copy_verbose_message("Copying file from [${conf_file}] to [${JANUS_CONF_FILES_PATH}/${real_conf_file}]...")
+			download_project_do_message("Copying file from [${conf_file}] to [${JANUS_CONF_FILES_PATH}/${real_conf_file}]...")
 			configure_file(
 					${conf_file}
 					${JANUS_CONF_FILES_PATH}/${real_conf_file}
 					COPYONLY
 			)
 		else ()
-			copy_verbose_message("Copying file from [${conf_file}] to [${JANUS_CONF_FILES_PATH}/${relative_conf_file}]...")
+			download_project_do_message("Copying file from [${conf_file}] to [${JANUS_CONF_FILES_PATH}/${relative_conf_file}]...")
 			configure_file(
 					${conf_file}
 					${JANUS_CONF_FILES_PATH}/${relative_conf_file}
@@ -255,7 +252,9 @@ function(download_project)
 			)
 		endif (file_is_in)
 	endforeach (conf_file IN LISTS CONF_FILES)
+endfunction(download_project_do_copy_conf)
 
+function(download_project_do_copy_demo)
 	# =============================================
 	# DEMO
 	# =============================================
@@ -274,14 +273,29 @@ function(download_project)
 	foreach (demo_file IN LISTS DEMO_FILES)
 		file(RELATIVE_PATH relative_demo_file ${html_file_path} ${demo_file})
 
-		copy_verbose_message("Copying file from [${demo_file}] to [${JANUS_INSTALL_DEMOS_DIR}/${relative_demo_file}]...")
+		download_project_do_message("Copying file from [${demo_file}] to [${JANUS_INSTALL_DEMOS_DIR}/${relative_demo_file}]...")
 		configure_file(
 				${demo_file}
 				${JANUS_INSTALL_DEMOS_DIR}/${relative_demo_file}
 				COPYONLY
 		)
 	endforeach (demo_file IN LISTS DEMO_FILES)
+endfunction(download_project_do_copy_demo)
 
+# note: The functions of the original download project are split into multiple parts in order to facilitate selective `overwriting` of certain required files.
+function(download_project)
+	download_project_do_download()
+
+	# =============================================
+	# COPY
+	# =============================================
+
+	# TODO: How do we notify `prepare_header_path.cmake` to reprocess all files if a user deletes the folder and wants us to update all source files?
+	set(JANUS_PROJECT_FILES_RECOPY_FROM_SOURCE ON CACHE INTERNAL "Indicates that the current source file has been overwritten and that the necessary processing needs to be done again." FORCE)
+
+	download_project_do_copy_source_files()
+	download_project_do_copy_conf()
+	download_project_do_copy_demo()
 endfunction(download_project)
 
 download_project()
