@@ -47,6 +47,7 @@ function(download_project_do_download)
 		)
 	else ()
 		message(STATUS "The target folder(${dest_folder}) already exists, no need to extract archive. (Please delete the original folder if you need to update)")
+		set(download_project_extract_required OFF PARENT_SCOPE)
 		return()
 	endif (NOT EXISTS ${dest_folder})
 endfunction(download_project_do_download)
@@ -284,7 +285,12 @@ endfunction(download_project_do_copy_demo)
 
 # note: The functions of the original download project are split into multiple parts in order to facilitate selective `overwriting` of certain required files.
 function(download_project)
+	set(download_project_extract_required ON)
 	download_project_do_download()
+
+	if(NOT ${download_project_extract_required})
+		return()
+	endif(NOT ${download_project_extract_required})
 
 	# =============================================
 	# COPY
